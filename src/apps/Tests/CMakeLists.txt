@@ -1,0 +1,31 @@
+project(Tests)
+
+set(${PROJECT_NAME}_HEADERS
+    catch.hpp
+)
+
+set(${PROJECT_NAME}_SOURCES
+    Barycentric.cpp
+    Matrix.cpp
+    Polynomial.cpp
+)
+
+add_executable(${PROJECT_NAME}
+    main.cpp
+    ${${PROJECT_NAME}_SOURCES}
+    ${${PROJECT_NAME}_HEADERS}
+)
+
+
+target_link_libraries(${PROJECT_NAME} PRIVATE
+    math
+)
+
+include(cmc-cpp)
+cmc_cpp_all_warnings_as_errors(${PROJECT_NAME})
+
+
+## 
+## Install
+##
+install(TARGETS ${PROJECT_NAME} RUNTIME)
