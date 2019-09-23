@@ -12,6 +12,22 @@ MatrixBase<TMA>::MatrixBase(UninitializedTag)
 
 
 template<TMP>
+MatrixBase<TMA>::MatrixBase(detail::CastTag, store_type aData) :
+    mStore(aData)
+{}
+
+
+template<TMP>
+template <class T_otherDerived,
+          class /* default template argument used to enable_if */>
+MatrixBase<TMA>::operator T_otherDerived () const
+{
+    T_otherDerived result(detail::CastTag{}, mStore);
+    return result;
+}
+
+
+template<TMP>
 T_derived & MatrixBase<TMA>::setZero()
 {
     mStore.fill(0);
@@ -103,6 +119,13 @@ template <TMP>
 T_number MatrixBase<TMA>::at(std::size_t aRow, std::size_t aColumn) const
 {
     return mStore[aRow*N_cols + aColumn];
+}
+
+
+template <TMP>
+const T_number * MatrixBase<TMA>::data() const
+{
+    return mStore.data();
 }
 
 
@@ -214,7 +237,7 @@ T_derived & MatrixBase<TMA>::hadamardAssign(const MatrixBase &aRhs)
 
 
 template <TMP>
-T_derived MatrixBase<TMA>::hadamard(T_derived aRhs)
+T_derived MatrixBase<TMA>::hadamard(T_derived aRhs) const
 {
     return aRhs.hadamardAssign(*this);
 }

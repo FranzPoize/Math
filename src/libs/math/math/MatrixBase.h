@@ -10,6 +10,17 @@ namespace math {
 #define TMA T_derived, N_rows, N_cols, T_number
 
 
+namespace detail {
+
+class CastTag
+{
+    template <TMP>
+    friend class MatrixBase;
+};
+
+} // namespace detail
+
+
 template <TMP>
 class MatrixBase
 {
@@ -66,6 +77,16 @@ public:
               std::enable_if_t<sizeof...(T_element) == N_rows*N_cols, int> = 0>
     MatrixBase(T_element... vaElements);
     
+    /// \brief Explicit cast to another derived type of same dimensions and scalar type
+    template <class T_otherDerived,
+              class = typename std::enable_if<std::is_base_of<MatrixBase<T_otherDerived,
+                                                                         N_rows,
+                                                                         N_cols,
+                                                                         T_number>,
+                                                              T_otherDerived>::value,
+                                              T_otherDerived>::type>
+    explicit operator T_otherDerived () const;
+
     /// \brief Sets all elements to zero
     T_derived & setZero();
 
@@ -83,6 +104,13 @@ public:
     const_iterator begin() const;
     const_iterator end() const;
 
+    T_number & at(std::size_t aIndex);
+    T_number & at(std::size_t aRow, std::size_t aColumn);
+    T_number at(std::size_t aIndex) const;
+    T_number at(std::size_t aRow, std::size_t aColumn) const;
+
+    const T_number * data() const;
+
 
     T_derived & operator+=(const MatrixBase &aRhs);
     T_derived & operator-=(const MatrixBase &aRhs);
@@ -96,17 +124,11 @@ public:
     T_derived & hadamardAssign(const MatrixBase &aRhs);
     /// \brief The componentwise multiplication
     /// \note Made a member function to have the syntax with the 'operator name' in between operands
-    T_derived hadamard(T_derived aRhs);
+    T_derived hadamard(T_derived aRhs) const;
 
     
     bool operator==(const MatrixBase &aRhs) const;
     bool operator!=(const MatrixBase &aRhs) const;
-
-
-    T_number & at(std::size_t aIndex);
-    T_number & at(std::size_t aRow, std::size_t aColumn);
-    T_number at(std::size_t aIndex) const;
-    T_number at(std::size_t aRow, std::size_t aColumn) const;
 
 protected:
     T_derived * derivedThis();
@@ -125,6 +147,8 @@ protected:
 public:
     /// \brief Like a default constructor, but inaccessible to the client code thanks to the protected tag.
     MatrixBase(UninitializedTag);
+
+    MatrixBase(detail::CastTag, store_type aData);
 
 private:
     store_type mStore;
