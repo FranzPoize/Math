@@ -53,11 +53,12 @@ SCENARIO("Matrices have a different factories")
     }
 }
 
+
 SCENARIO("Basic operations are available on Matrix instances")
 {
     THEN("A zero factory is available")
     {
-        Vec3<> zero = Vec3<>::Zero();
+        Vec<3> zero = Vec<3>::Zero();
         REQUIRE(zero.x() == 0.);
         REQUIRE(zero.y() == 0.);
         REQUIRE(zero.z() == 0.);
@@ -65,17 +66,17 @@ SCENARIO("Basic operations are available on Matrix instances")
 
     GIVEN("Two 3 elements vectors")
     {
-        Vec3<> a = {3., 4., 5.};
-        Vec3<> b = {10., 20., 30.};
+        Vec<3> a = {3., 4., 5.};
+        Vec<3> b = {10., 20., 30.};
 
         THEN("They can be added and substracted")
         {
-            Vec3<> add = a+b;
+            Vec<3> add = a+b;
             REQUIRE(add.x() == a.x() + b.x());
             REQUIRE(add.y() == a.y() + b.y());
             REQUIRE(add.z() == a.z() + b.z());
 
-            Vec3<> sub = b-a;
+            Vec<3> sub = b-a;
             REQUIRE(sub.x() == b.x() - a.x());
             REQUIRE(sub.y() == b.y() - a.y());
             REQUIRE(sub.z() == b.z() - a.z());
@@ -89,6 +90,17 @@ SCENARIO("Basic operations are available on Matrix instances")
             5., 55., 5.,
             0., 11., 1.15,
         };
+
+        THEN("Its raw data is contiguous")
+        {
+            REQUIRE((&matrix[2][2] - &matrix[0][0]) == 8);
+        }
+
+        THEN("Its raw data can be accessed as a pointer to first element")
+        {
+            REQUIRE(*matrix.data() == 1.);
+            REQUIRE(*(matrix.data() + 8) == 1.15);
+        }
 
         GIVEN("A scalar factor")
         {
@@ -165,6 +177,7 @@ SCENARIO("Basic operations are available on Matrix instances")
     }
 }
 
+
 SCENARIO("Naive multiplication")
 {
     GIVEN("A 2x2 Matrix")
@@ -186,11 +199,12 @@ SCENARIO("Naive multiplication")
     }
 }
 
+
 SCENARIO("Vector multiplication")
 {
     GIVEN("A vector 3")
     {
-        Vec3<> vector{ 5., 6., 15.};
+        Vec<3> vector{ 5., 6., 15.};
 
         GIVEN("A 3x3 matrix")
         {
@@ -200,7 +214,7 @@ SCENARIO("Vector multiplication")
                 84., 0.5, 4.,
             };
 
-            Vec3<> expected { 1286., 70.5, 231. };
+            Vec<3> expected { 1286., 70.5, 231. };
 
             THEN("The vector can me multiplied by the matrix")
             {
@@ -212,40 +226,6 @@ SCENARIO("Vector multiplication")
                 vector *= matrix;
                 REQUIRE(vector == expected);
             }
-        }
-    }
-}
-
-
-SCENARIO("Vector operations")
-{
-    GIVEN("Two vector of dimension 3")
-    {
-        Vec3<> a{ 3., 2., -4.};
-        Vec3<> b{ 5., -1., 2.};
-
-        THEN("dot product can be computed")
-        {
-            REQUIRE(a.dot(b) == 5);
-            REQUIRE(a.dot(b) == b.dot(a));
-        }
-
-        THEN("Hadamard product can be computed")
-        {
-            Vec3<> expected{15., -2., -8.};
-            REQUIRE(a.hadamard(b) == expected);
-
-            b.hadamardAssign(a);
-            REQUIRE(b == expected);
-        }
-
-        THEN("Cross product can be computed")
-        {
-            Vec3<> expected{0., -26., -13.};
-            REQUIRE(a.cross(b) == expected);
-
-            a.crossAssign(b);
-            REQUIRE(a == expected);
         }
     }
 }

@@ -45,19 +45,21 @@ T_number Vector<T_derived, N_dimension, T_number>::dot(const Vector &aRhs) const
 
 
 /*
- * Vec3Base implementation
+ * Cross product implementation
  */
-template <class T_derived, class T_number>
-T_derived & Vec3Base<T_derived, T_number>::crossAssign(const Vec3Base &aRhs)
+template <int N_dimension, class T_number>
+auto Vec<N_dimension, T_number>::crossAssign(const Vec & aRhs) -> Vec &
 {
+    static_assert(N_dimension==3, "Disabled when dimension != 3");
     *this = this->cross(aRhs);
     return *this->derivedThis();
 }
 
 
-template <class T_derived, class T_number>
-T_derived Vec3Base<T_derived, T_number>::cross(const Vec3Base &aRhs)
+template <int N_dimension, class T_number>
+auto Vec<N_dimension, T_number>::cross(const Vec &aRhs) -> Vec
 {
+    static_assert(N_dimension==3, "Disabled when dimension != 3");
     return {
         y()*aRhs.z() - z()*aRhs.y(),
         z()*aRhs.x() - x()*aRhs.z(),

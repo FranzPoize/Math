@@ -34,13 +34,13 @@ public:
     };
 
     /// \attention Undefined behaviour if the three points form a degenerate triangle.
-    Barycentric(Vec2<T_number> aPointA, Vec2<T_number> aPointB, Vec2<T_number> aPointC);
+    Barycentric(Vec<2, T_number> aPointA, Vec<2, T_number> aPointB, Vec<2, T_number> aPointC);
 
     /// \brief Compute the barycentric coordinates of aPoint in the basis formed by this Barycentric
-    Coordinates getCoordinates(Vec2<T_number> aPoint);
+    Coordinates getCoordinates(Vec<2, T_number> aPoint);
     
 private:
-    static T_number signedDistance(const Factors &aFactors, Vec2<T_number> aPoint);
+    static T_number signedDistance(const Factors &aFactors, Vec<2, T_number> aPoint);
 
 
 private:
@@ -53,7 +53,7 @@ private:
 
 
 template <class T_number>
-Barycentric<T_number>::Barycentric(Vec2<T_number> aPointA, Vec2<T_number> aPointB, Vec2<T_number> aPointC) :
+Barycentric<T_number>::Barycentric(Vec<2, T_number> aPointA, Vec<2, T_number> aPointB, Vec<2, T_number> aPointC) :
         mBetaFactors { 
             aPointA.y()-aPointC.y(),
             aPointC.x()-aPointA.x(),
@@ -70,14 +70,14 @@ Barycentric<T_number>::Barycentric(Vec2<T_number> aPointA, Vec2<T_number> aPoint
 
 
 template <class T_number>
-Barycentric<T_number> makeBarycentric(Vec2<T_number> aPointA, Vec2<T_number> aPointB, Vec2<T_number> aPointC) 
+Barycentric<T_number> makeBarycentric(Vec<2, T_number> aPointA, Vec<2, T_number> aPointB, Vec<2, T_number> aPointC)
 {
     return Barycentric<T_number>(aPointA, aPointB, aPointC);
 }
 
 
 template <class T_number>
-typename Barycentric<T_number>::Coordinates Barycentric<T_number>::getCoordinates(Vec2<T_number> aPoint)
+typename Barycentric<T_number>::Coordinates Barycentric<T_number>::getCoordinates(Vec<2, T_number> aPoint)
 {
     static_assert(std::is_floating_point<T_number>::value, "Not yet implement for non-floating point coordinates");
 
@@ -88,7 +88,7 @@ typename Barycentric<T_number>::Coordinates Barycentric<T_number>::getCoordinate
 
 
 template <class T_number>
-T_number Barycentric<T_number>::signedDistance(const Factors &aFactors, Vec2<T_number> aPoint)
+T_number Barycentric<T_number>::signedDistance(const Factors &aFactors, Vec<2, T_number> aPoint)
 {
     return aPoint.x() * aFactors.x + aPoint.y() * aFactors.y + aFactors.constant;
 }

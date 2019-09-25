@@ -72,19 +72,19 @@ private:
 public:
     /// \note: std::array does not have a std::initializer_list constructor, but aggregate initialization.
     /// \note: enable_if to only allow this ctor when the right number of arguments is provided
-    ///        (notably avoids this constructor being selected as the default ctor)
+    ///        (notably prevents this constructor from being selected as the default ctor)
     template <class... T_element,
               std::enable_if_t<sizeof...(T_element) == N_rows*N_cols, int> = 0>
     MatrixBase(T_element... vaElements);
     
     /// \brief Explicit cast to another derived type of same dimensions and scalar type
     template <class T_otherDerived,
-              class = typename std::enable_if<std::is_base_of<MatrixBase<T_otherDerived,
-                                                                         N_rows,
-                                                                         N_cols,
-                                                                         T_number>,
-                                                              T_otherDerived>::value,
-                                              T_otherDerived>::type>
+              class = std::enable_if_t<std::is_base_of<MatrixBase<T_otherDerived,
+                                                                  N_rows,
+                                                                  N_cols,
+                                                                  T_number>,
+                                                       T_otherDerived>::value,
+                                       T_otherDerived>>
     explicit operator T_otherDerived () const;
 
     /// \brief Sets all elements to zero
@@ -188,4 +188,3 @@ std::ostream & operator<<(std::ostream & os, const MatrixBase<TMA> &aMatrix);
 
 
 }} // namespace ad::math
-

@@ -2,12 +2,14 @@ project(Tests)
 
 set(${PROJECT_NAME}_HEADERS
     catch.hpp
+    detection.h
 )
 
 set(${PROJECT_NAME}_SOURCES
     Barycentric.cpp
     Matrix.cpp
     Polynomial.cpp
+    Vector.cpp
 )
 
 add_executable(${PROJECT_NAME}

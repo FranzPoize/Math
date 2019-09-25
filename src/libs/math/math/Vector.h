@@ -32,142 +32,79 @@ T_derived operator*(const Vector<T_derived, N_dimension, T_number> aLhs,
 /***
  * Specializations
  ***/
+#define ENABLER(condition) \
+    template <int N=N_dimension, class = std::enable_if_t<(N condition && N==N_dimension)>> 
 
-#define BASE Vector<T_derived, 4, T_number>
-template <class T_derived, class T_number>
-class Vec4Base : public BASE
+#define ACCESSOR(symbol, dimension) \
+    ENABLER(>= dimension)           \
+    T_number & symbol()/* requires (N_dimension>=dimension)*/ \
+    {static_assert(N_dimension>=dimension, "Disabled when dimensions < " #dimension); return this->at(dimension-1);} \
+                                    \
+    ENABLER(>= dimension)           \
+    T_number symbol() const/* requires (N_dimension>=dimension)*/ \
+    {static_assert(N_dimension>=dimension, "Disabled when dimensions <" #dimension); return this->at(dimension-1);}
+
+
+#define BASE Vector<Vec<N_dimension, T_number>, N_dimension, T_number>
+template <int N_dimension, class T_number=real_number>
+class Vec : public BASE
 {
     typedef BASE base_type;
     using base_type::base_type;
 
 public:
-    T_derived & crossAssign(const Vec4Base &aRhs);
-    T_derived cross(const Vec4Base &aRhs);
+    template<class T>
+    using derived_type = Vec<N_dimension, T>;
 
-    T_number &x()
-    { return this->at(0); }
-    T_number &y()
-    { return this->at(1); }
-    T_number &z()
-    { return this->at(2); }
-    T_number &w()
-    { return this->at(3); }
+    // This approach has drawbacks:
+    // * The error can be hard to read, with many lines of template substition error
+    // * It is not fool-proof, because client code can still give explicit value for function template arguments
+    // A good solution seems to be `requires` keyword introduced in C++20,
+    // but we do with a mix of enbable_if and static_assert for the moment.
+    // see: https://stackoverflow.com/q/58068206/1027706
+    //
+    //template <int N=N_dimension, class = std::enable_if_t<(N>1 && N==N_dimension)>> T_number & y()
+    //{return this->at(1);}
 
-    T_number x() const
-    { return this->at(0); }
-    T_number y() const
-    { return this->at(1); }
-    T_number z() const
-    { return this->at(2); }
-    T_number w() const
-    { return this->at(3); }
+    ACCESSOR(x, 1)
+    ACCESSOR(y, 2)
+    ACCESSOR(z, 3)
+    ACCESSOR(w, 4)
+
+    /// \todo Could be extended to all dimensions >= 3?
+    Vec & crossAssign(const Vec &aRhs) /*requires(N_dimension==3)*/;
+    Vec cross(const Vec &aRhs) /*requires(N_dimension==3)*/;
 };
 #undef BASE
 
-
-#define BASE Vec4Base<Vec4<T_number>, T_number>
-template <class T_number=real_number>
-class Vec4 : public BASE
+#define BASE Vector<Size<N_dimension, T_number>, N_dimension, T_number>
+template <int N_dimension, class T_number=real_number>
+class Size : public BASE
 {
-    typedef BASE base_type;
-    using base_type::base_type;
-};
-#undef BASE
-
-#define BASE Vector<T_derived, 3, T_number>
-template <class T_derived, class T_number>
-class Vec3Base : public BASE
-{
+    /// \todo Disable most of the available functions
     typedef BASE base_type;
     using base_type::base_type;
 
 public:
-    T_derived & crossAssign(const Vec3Base &aRhs);
-    T_derived cross(const Vec3Base &aRhs);
+    template<class T>
+    using derived_type = Size<N_dimension, T>;
 
-    T_number &x()
-    { return this->at(0); }
-    T_number &y()
-    { return this->at(1); }
-    T_number &z()
-    { return this->at(2); }
+    ACCESSOR(width,  1)
+    ACCESSOR(height, 2)
+    ACCESSOR(depth,  3)
 
-    T_number x() const
-    { return this->at(0); }
-    T_number y() const
-    { return this->at(1); }
-    T_number z() const
-    { return this->at(2); }
+    template <int N=N_dimension, class = std::enable_if_t<(N==2 && N==N_dimension)>> 
+    T_number area() const/* requires (N_dimension==2)*/
+    {static_assert(N_dimension==2, "Disabled when dimension != 2"); return width()*height();}
+
+    template <int N=N_dimension, class = std::enable_if_t<(N==3 && N==N_dimension)>> 
+    T_number volume() const/* requires (N_dimension==3)*/
+    {static_assert(N_dimension==3, "Disabled when dimension != 3"); return width()*height()*depth();}
 };
 #undef BASE
 
-
-#define BASE Vec3Base<Vec3<T_number>, T_number>
-template <class T_number=real_number>
-class Vec3 : public BASE
-{
-    typedef BASE base_type;
-    using base_type::base_type;
-};
-#undef BASE
-
-
-#define BASE Vector<T_derived, 2, T_number>
-template <class T_derived, class T_number>
-class Vec2Base : public BASE
-{
-    typedef BASE base_type;
-    using base_type::base_type;
-
-public:
-    T_number &x()
-    { return this->at(0); }
-    T_number &y()
-    { return this->at(1); }
-
-    T_number x() const
-    { return this->at(0); }
-    T_number y() const
-    { return this->at(1); }
-};
-#undef BASE
-
-
-#define BASE Vec2Base<Vec2<T_number>, T_number>
-template <class T_number=real_number>
-class Vec2 : public BASE
-{
-    typedef BASE base_type;
-    using base_type::base_type;
-};
-#undef BASE
-
-
-#define BASE Vector<Dimension2<T_number>, 2, T_number>
-template <class T_number=real_number>
-class Dimension2 : public BASE
-{
-    typedef BASE base_type;
-    using base_type::base_type;
-
-    /// \TODO disable most of the public functions
-
-public:
-    T_number &width()
-    { return this->at(0); }
-    T_number &height()
-    { return this->at(1); }
-
-    T_number width() const
-    { return this->at(0); }
-    T_number height() const
-    { return this->at(1); }
-
-    T_number area() const
-    { return width()*height(); }
-};
-#undef BASE
-
+#undef ACCESSOR
+#undef ENABLER
 
 #include "Vector-impl.h"
 
