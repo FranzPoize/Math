@@ -9,6 +9,8 @@ set(${PROJECT_NAME}_SOURCES
     Barycentric.cpp
     Matrix.cpp
     Polynomial.cpp
+    Range.cpp
+    Rectangle.cpp
     Vector.cpp
 )
 

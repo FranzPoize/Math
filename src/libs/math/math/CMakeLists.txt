@@ -7,6 +7,7 @@ set(${PROJECT_NAME}_HEADERS
     MatrixBase.h
     MatrixBase-impl.h
     Range.h
+    Rectangle.h
     Utilities.h
     Vector.h
     Vector-impl.h
