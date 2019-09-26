@@ -16,6 +16,9 @@ class Matrix : public MatrixBase<Matrix<N_rows, N_cols, T_number>, N_rows, N_col
     using base_type::base_type;
 
 public:
+    template<class T>
+    using derived_type = Matrix<N_rows, N_cols, T>;
+
     static Matrix Identity();
 };
 

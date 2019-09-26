@@ -54,36 +54,28 @@ SCENARIO("Matrices have a different factories")
 }
 
 
-SCENARIO("Basic operations are available on Matrix instances")
+SCENARIO("Matrix conversion")
 {
-    THEN("A zero factory is available")
+    GIVEN("A 2x2 Matrix storing doubles")
     {
-        Vec<3> zero = Vec<3>::Zero();
-        REQUIRE(zero.x() == 0.);
-        REQUIRE(zero.y() == 0.);
-        REQUIRE(zero.z() == 0.);
+        Matrix<2, 2> source = {
+            1., 2.,
+            2., 1.
+        };
+
+        THEN("It can be converted to a 2x2 Matrix of ints")
+        {
+            Matrix<2, 2, int> converted = static_cast<Matrix<2, 2, int>>(source);
+            REQUIRE(std::equal(source.begin(), source.end(), converted.begin()));
+        }
     }
 
-    GIVEN("Two 3 elements vectors")
-    {
-        Vec<3> a = {3., 4., 5.};
-        Vec<3> b = {10., 20., 30.};
+}
 
-        THEN("They can be added and substracted")
-        {
-            Vec<3> add = a+b;
-            REQUIRE(add.x() == a.x() + b.x());
-            REQUIRE(add.y() == a.y() + b.y());
-            REQUIRE(add.z() == a.z() + b.z());
+SCENARIO("Basic operations are available on Matrix instances")
+{
 
-            Vec<3> sub = b-a;
-            REQUIRE(sub.x() == b.x() - a.x());
-            REQUIRE(sub.y() == b.y() - a.y());
-            REQUIRE(sub.z() == b.z() - a.z());
-        }
-    } 
-
-    GIVEN("A 3x3 Matrix")
+   GIVEN("A 3x3 Matrix")
     {
         Matrix<3, 3> matrix = {
             1., 2.,  3.,
@@ -194,37 +186,6 @@ SCENARIO("Naive multiplication")
             THEN("Mutlipliying them results in the first matrix")
             {
                 REQUIRE( (left*right) == left );
-            }
-        }
-    }
-}
-
-
-SCENARIO("Vector multiplication")
-{
-    GIVEN("A vector 3")
-    {
-        Vec<3> vector{ 5., 6., 15.};
-
-        GIVEN("A 3x3 matrix")
-        {
-            Matrix<3, 3> matrix {
-                4., 12., 33.,
-                1., 0.5, 1.,
-                84., 0.5, 4.,
-            };
-
-            Vec<3> expected { 1286., 70.5, 231. };
-
-            THEN("The vector can me multiplied by the matrix")
-            {
-                REQUIRE((vector*matrix) == expected);
-            }
-
-            THEN("The vector can me multiplied by the matrix")
-            {
-                vector *= matrix;
-                REQUIRE(vector == expected);
             }
         }
     }

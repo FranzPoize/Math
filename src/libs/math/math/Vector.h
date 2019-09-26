@@ -19,6 +19,7 @@ public:
     T_number operator[](std::size_t aColumn) const;
 
     T_derived & operator*=(const Matrix<N_dimension, N_dimension, T_number> &aRhs);
+    using base_type::operator*=;
 
     /// \brief Dot product
     T_number dot(const Vector &aRhs) const;

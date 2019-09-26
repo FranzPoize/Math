@@ -46,6 +46,18 @@ SCENARIO("Vectors can be constructed and manipulated")
             REQUIRE(std::all_of(vec3.begin(), vec3.end(), [](double aValue){ return aValue == 0; }));
         }
     }
+
+    GIVEN("A vector")
+    {
+        Vec<3, int> vec3{4, 4, 2};
+        THEN("It can be compared and assigned")
+        {
+            Vec<3, int> other{5, 4, 2};
+            REQUIRE(vec3 != other);
+            vec3 = other;
+            REQUIRE(vec3 == other);
+        }
+    }
 }
 
 
@@ -62,10 +74,27 @@ SCENARIO("There are separate vector template classes")
         {
             Size<2> size{5., 10.};
             Vec<2> vec = static_cast<Vec<2>>(size);
-            REQUIRE(vec.at(1) == 10.);
+            REQUIRE(std::equal(vec.begin(), vec.end(), size.begin()));
+        }
+    }
+
+    WHEN("Using same vector class, but with different value_type")
+    {
+        THEN("They are not implicitly convertible")
+        {
+            REQUIRE_FALSE(std::is_convertible<Vec<2>, Vec<2, int>>::value);
+        }
+
+        THEN("They can be explicitly converted")
+        {
+            Vec<2> source{5., 10.};
+            Vec<2, int> converted = static_cast<Vec<2, int>>(source);
+            REQUIRE(converted.at(0) == 5);
+            REQUIRE(converted.at(1) == 10);
         }
     }
 }
+
 
 #define HAS(mem_fun) template <class T> using has_##mem_fun##_t = decltype(std::declval<T&>().mem_fun());
 
@@ -76,6 +105,33 @@ HAS(w)
 
 SCENARIO("Vec class operations")
 {
+    THEN("A zero factory is available")
+    {
+        Vec<3> zero = Vec<3>::Zero();
+        REQUIRE(zero.x() == 0.);
+        REQUIRE(zero.y() == 0.);
+        REQUIRE(zero.z() == 0.);
+    }
+
+    GIVEN("Two 3 elements vectors")
+    {
+        Vec<3> a = {3., 4., 5.};
+        Vec<3> b = {10., 20., 30.};
+
+        THEN("They can be added and substracted")
+        {
+            Vec<3> add = a+b;
+            REQUIRE(add.x() == a.x() + b.x());
+            REQUIRE(add.y() == a.y() + b.y());
+            REQUIRE(add.z() == a.z() + b.z());
+
+            Vec<3> sub = b-a;
+            REQUIRE(sub.x() == b.x() - a.x());
+            REQUIRE(sub.y() == b.y() - a.y());
+            REQUIRE(sub.z() == b.z() - a.z());
+        }
+    }
+
     GIVEN("Two vector of dimension 3")
     {
         Vec<3> a{ 3., 2., -4.};
@@ -103,6 +159,39 @@ SCENARIO("Vec class operations")
 
             a.crossAssign(b);
             REQUIRE(a == expected);
+        }
+    }
+
+    GIVEN("A vector 3")
+    {
+        Vec<3> vector{ 5., 6., 15.};
+
+        THEN("The vector can be multiplied by a scalar")
+        {
+            Vec<3> expected = {3.*5., 3.*6, 3.*15.};
+            REQUIRE( vector*3. == expected);
+        }
+
+        GIVEN("A 3x3 matrix")
+        {
+            Matrix<3, 3> matrix {
+                4., 12., 33.,
+                1., 0.5, 1.,
+                84., 0.5, 4.,
+            };
+
+            Vec<3> expected { 1286., 70.5, 231. };
+
+            THEN("The vector can me multiplied by the matrix")
+            {
+                REQUIRE((vector*matrix) == expected);
+            }
+
+            THEN("The vector can me multiplied by the matrix")
+            {
+                vector *= matrix;
+                REQUIRE(vector == expected);
+            }
         }
     }
 

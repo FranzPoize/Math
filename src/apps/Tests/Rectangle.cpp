@@ -19,6 +19,13 @@ SCENARIO("Rectangle usage")
             REQUIRE(rect.width() == 20.);
             REQUIRE(rect.height() == 30.);
         }
+
+        THEN("It can be assigned from another rectangle")
+        {
+            Rectangle<double> other{ {10., 10.}, {200., 200.} };
+            REQUIRE(rect != other);
+            rect = other; 
+            REQUIRE(rect == other);
+        }
     }
 }
-

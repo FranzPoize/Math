@@ -28,6 +28,15 @@ MatrixBase<TMA>::operator T_otherDerived () const
 
 
 template<TMP>
+template <class T_otherDerived,
+          class /* default template argument used to enable_if */>
+MatrixBase<TMA>::MatrixBase(const T_otherDerived & aOther)
+{
+    std::copy(aOther.begin(), aOther.end(), mStore.begin());
+}
+
+
+template<TMP>
 T_derived & MatrixBase<TMA>::setZero()
 {
     mStore.fill(0);

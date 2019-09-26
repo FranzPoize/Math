@@ -27,6 +27,7 @@ class MatrixBase
     typedef std::array<T_number, N_rows*N_cols> store_type;
 
 public:
+    typedef typename store_type::value_type value_type; // i.e. T_number
     typedef typename store_type::const_iterator const_iterator;
 
     static constexpr std::size_t Rows{N_rows};
@@ -86,6 +87,21 @@ public:
                                                        T_otherDerived>::value,
                                        T_otherDerived>>
     explicit operator T_otherDerived () const;
+
+    /// Not possible, that leads to a duplicate conversion operator error
+    ///// \brief Explicit cast to the same derived type, except with a different value_type
+    //template <class T_otherDerived,
+    //          class = std::enable_if_t<std::is_same<typename T_otherDerived::template derived_type<MatrixBase::value_type>,
+    //                                                 T_derived>::value>>
+    //explicit operator T_otherDerived () const;
+
+    ///// \brief Explicit cast to the same derived type, except with a different value_type
+    template <class T_otherDerived,
+              class = std::enable_if_t<
+                          std::is_same<typename T_otherDerived::template derived_type<MatrixBase::value_type>,
+                                       T_derived>::value>>
+    explicit MatrixBase(const T_otherDerived & aOther);
+
 
     /// \brief Sets all elements to zero
     T_derived & setZero();
