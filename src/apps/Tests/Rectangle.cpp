@@ -27,5 +27,11 @@ SCENARIO("Rectangle usage")
             rect = other; 
             REQUIRE(rect == other);
         }
+
+        THEN("Its corners are accessible")
+        {
+            REQUIRE(rect.originCorner() == Position<2>{0., 5.});
+            REQUIRE(rect.diagonalCorner() == Position<2>{20., 35.});
+        }
     }
 }

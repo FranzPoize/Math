@@ -6,6 +6,7 @@ set(${PROJECT_NAME}_HEADERS
     Matrix.h
     MatrixBase.h
     MatrixBase-impl.h
+    MatrixTraits.h
     Range.h
     Rectangle.h
     Utilities.h

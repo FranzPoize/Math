@@ -1,5 +1,7 @@
 #pragma once
 
+#include "MatrixTraits.h"
+
 #include <array>
 #include <iostream>
 
@@ -8,6 +10,8 @@ namespace math {
 
 #define TMP class T_derived, int N_rows, int N_cols, class T_number
 #define TMA T_derived, N_rows, N_cols, T_number
+
+#define TMA_RIGHT T_derivedRight, N_rows, N_cols, T_number
 
 
 namespace detail {
@@ -113,7 +117,8 @@ public:
     Row operator[](std::size_t aRow);
     const_Row operator[](std::size_t aRow) const;
 
-    // Iterate one line at a time, going through each column in the line before descending to the next line
+    // Iterate one line at a time, going through each column in the line
+    // before descending to the next line
     const_iterator cbegin() const;
     const_iterator cend() const;
     // Also implemented to enable range for loop
@@ -128,8 +133,11 @@ public:
     const T_number * data() const;
 
 
-    T_derived & operator+=(const MatrixBase &aRhs);
-    T_derived & operator-=(const MatrixBase &aRhs);
+    // Allows for compound addition of other derived types, depending on the derived traits
+    template <class T_derivedRight>
+    additive_t<T_derived, T_derivedRight> & operator+=(const MatrixBase<TMA_RIGHT> &aRhs);
+    template <class T_derivedRight>
+    additive_t<T_derived, T_derivedRight> & operator-=(const MatrixBase<TMA_RIGHT> &aRhs);
 
     T_derived & operator*=(T_number aScalar);
     T_derived & operator/=(T_number aScalar);
@@ -173,17 +181,24 @@ private:
 /*
  * Free function arithmetic operators
  */
-template <TMP>
-T_derived operator+(T_derived aLhs, const MatrixBase<TMA> &aRhs);
+// Implementer's note:
+//   Was simple and elegant, matching the T_derived in the first argument (by value to be modified)
+//   with the T_derived in the MatrixBase
+//   Yet it only allowed addition for matching derived types (and could not disable it)
+//template <TMP>
+//T_derived operator+(T_derived aLhs, const MatrixBase<TMA> &aRhs);
 
-template <TMP>
-T_derived operator-(T_derived aLhs, const MatrixBase<TMA> &aRhs);
+template <TMP, class T_derivedRight>
+additive_t<T_derived, T_derivedRight> operator+(T_derived aLhs, const MatrixBase<TMA_RIGHT> & aRhs);
 
-template <TMP>
-T_derived operator*(T_number aScalar, const MatrixBase<TMA> &aRhs);
+template <TMP, class T_derivedRight>
+additive_t<T_derived, T_derivedRight> operator-(T_derived aLhs, const MatrixBase<TMA_RIGHT> & aRhs);
 
 template <TMP>
 T_derived operator*(const MatrixBase<TMA> &aLhs, T_number aScalar);
+
+template <TMP>
+T_derived operator*(T_number aScalar, const MatrixBase<TMA> &aRhs);
 
 template <TMP>
 T_derived operator/(const MatrixBase<TMA> &aLhs, T_number aScalar);
@@ -199,6 +214,7 @@ std::ostream & operator<<(std::ostream & os, const MatrixBase<TMA> &aMatrix);
 #include "MatrixBase-impl.h"
 
 
+#undef TMA_RIGHT
 #undef TMA
 #undef TMP
 

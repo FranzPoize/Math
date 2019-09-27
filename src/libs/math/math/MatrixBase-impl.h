@@ -139,19 +139,21 @@ const T_number * MatrixBase<TMA>::data() const
 
 
 template <TMP>
-T_derived & MatrixBase<TMA>::operator+=(const MatrixBase &aRhs)
+template <class T_derivedRight>
+additive_t<T_derived, T_derivedRight> &
+MatrixBase<TMA>::operator+=(const MatrixBase<TMA_RIGHT> &aRhs)
 {
     for(std::size_t elementId = 0; elementId != N_rows*N_cols; ++elementId)
     {
-        mStore[elementId] += aRhs.mStore[elementId];
+        mStore[elementId] += aRhs.at(elementId);
     }
 
     return *derivedThis();
 }
 
 
-template <TMP>
-T_derived operator+(T_derived aLhs, const MatrixBase<TMA> &aRhs)
+template <TMP, class T_derivedRight>
+additive_t<T_derived, T_derivedRight> operator+(T_derived aLhs, const MatrixBase<TMA_RIGHT> & aRhs)
 {
     aLhs += aRhs;
     return aLhs;
@@ -159,19 +161,21 @@ T_derived operator+(T_derived aLhs, const MatrixBase<TMA> &aRhs)
 
 
 template <TMP>
-T_derived & MatrixBase<TMA>::operator-=(const MatrixBase &aRhs)
+template <class T_derivedRight>
+additive_t<T_derived, T_derivedRight> &
+MatrixBase<TMA>::operator-=(const MatrixBase<TMA_RIGHT> &aRhs)
 {
     for(std::size_t elementId = 0; elementId != N_rows*N_cols; ++elementId)
     {
-        mStore[elementId] -= aRhs.mStore[elementId];
+        mStore[elementId] -= aRhs.at(elementId);
     }
 
     return *derivedThis();
 }
 
 
-template <TMP>
-T_derived operator-(T_derived aLhs, const MatrixBase<TMA> &aRhs)
+template <TMP, class T_derivedRight>
+additive_t<T_derived, T_derivedRight> operator-(T_derived aLhs, const MatrixBase<TMA_RIGHT> & aRhs)
 {
     aLhs -= aRhs;
     return aLhs;

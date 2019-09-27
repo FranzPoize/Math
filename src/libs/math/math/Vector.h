@@ -78,6 +78,35 @@ public:
 };
 #undef BASE
 
+
+#define BASE Vector<Position<N_dimension, T_number>, N_dimension, T_number>
+template <int N_dimension, class T_number=real_number>
+class Position : public BASE
+{
+    typedef BASE base_type;
+    using base_type::base_type;
+
+public:
+    template<class T>
+    using derived_type = Position<N_dimension, T>;
+
+    ACCESSOR(x, 1)
+    ACCESSOR(y, 2)
+    ACCESSOR(z, 3)
+    ACCESSOR(w, 4)
+};
+#undef BASE
+
+template <int N_dimension, class T_number>
+struct addition_trait<Position<N_dimension, T_number>, Position<N_dimension, T_number>, void>
+                     : public std::false_type
+{};
+
+template <int N_dimension, class T_number>
+struct addition_trait<Position<N_dimension, T_number>, Vec<N_dimension, T_number>, void>
+                     : public std::true_type
+{};
+
 #define BASE Vector<Size<N_dimension, T_number>, N_dimension, T_number>
 template <int N_dimension, class T_number=real_number>
 class Size : public BASE

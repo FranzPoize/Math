@@ -103,6 +103,17 @@ HAS(y)
 HAS(z)
 HAS(w)
 
+
+template<class T, class U>
+using is_additive_t = decltype(std::declval<T&>() + std::declval<U&>());
+template<class T, class U>
+using is_additivecompound_t = decltype(std::declval<T&>() += std::declval<U&>());
+
+template<class T, class U>
+using is_substractive_t = decltype(std::declval<T&>() + std::declval<U&>());
+template<class T, class U>
+using is_substractivecompound_t = decltype(std::declval<T&>() -= std::declval<U&>());
+
 SCENARIO("Vec class operations")
 {
     THEN("A zero factory is available")
@@ -111,6 +122,24 @@ SCENARIO("Vec class operations")
         REQUIRE(zero.x() == 0.);
         REQUIRE(zero.y() == 0.);
         REQUIRE(zero.z() == 0.);
+    }
+
+    THEN("Two vectors of matching dimension and type can be added together")
+    {
+        REQUIRE(ad::is_detected_v<is_additive_t, Vec<5>, Vec<5>>);
+        REQUIRE(ad::is_detected_v<is_additivecompound_t, Vec<2>, Vec<2>>);
+    }
+
+    THEN("Two vectors of different dimension cannot be added together")
+    {
+        REQUIRE_FALSE(ad::is_detected_v<is_additive_t, Vec<4>, Vec<5>>);
+        REQUIRE_FALSE(ad::is_detected_v<is_additivecompound_t, Vec<3>, Vec<2>>);
+    }
+
+    THEN("Two vectors of different value type cannot be added together")
+    {
+        REQUIRE_FALSE(ad::is_detected_v<is_additive_t, Vec<4>, Vec<4, int>>);
+        REQUIRE_FALSE(ad::is_detected_v<is_additivecompound_t, Vec<3, int>, Vec<3>>);
     }
 
     GIVEN("Two 3 elements vectors")
@@ -211,6 +240,75 @@ SCENARIO("Vec class operations")
         REQUIRE(ad::is_detected_v<has_y_t, Vec<4>>);
         REQUIRE(ad::is_detected_v<has_z_t, Vec<4>>);
         REQUIRE(ad::is_detected_v<has_w_t, Vec<4>>);
+    }
+}
+
+
+SCENARIO("Position class operations")
+{
+    THEN("Positions cannot be added together")
+    {
+        REQUIRE_FALSE(ad::is_detected_v<is_additive_t, Position<3>, Position<3>>);
+        REQUIRE_FALSE(ad::is_detected_v<is_additivecompound_t, Position<3>, Position<3>>);
+    }
+
+    THEN("Positions cannot be substracted together")
+    {
+        REQUIRE_FALSE(ad::is_detected_v<is_substractive_t, Position<3>, Position<3>>);
+        REQUIRE_FALSE(ad::is_detected_v<is_substractivecompound_t, Position<3>, Position<3>>);
+    }
+
+    THEN("A displacement can be added to a position of same dimension and value type")
+    {
+        REQUIRE(ad::is_detected_v<is_additive_t, Position<3>, Vec<3>>);
+        REQUIRE(ad::is_detected_v<is_additivecompound_t, Position<3>, Vec<3>>);
+    }
+
+    THEN("A position cannot be added to a displacement even with matching dimension and value type")
+    {
+        REQUIRE_FALSE(ad::is_detected_v<is_additive_t, Vec<3>, Position<3>>);
+        REQUIRE_FALSE(ad::is_detected_v<is_additivecompound_t, Vec<3>, Position<3>>);
+    }
+
+    GIVEN("A position instance of dimension 3")
+    {
+        Position<3, int> pos3{5, 10, 15};
+
+        GIVEN("A 3x3 Matrix")
+        {
+            Matrix<3, 3, int> matrix{
+                2, 0, 2,
+                1, 1, 1,
+                0, 1, 0
+            };
+
+            THEN("The position can be multiplied by the matrix")
+            {
+                Position<3, int> expected = { 10+10, 10+15, 10+10 };
+                REQUIRE( (pos3*matrix) == expected);
+
+                pos3*=matrix;
+                REQUIRE( pos3 == expected);
+            }
+
+        }
+
+        GIVEN("A displacement of dimension 3")
+        {
+            Vec<3, int> vec3{0, 20, -5};
+
+            THEN("The displacement can be added to the position")
+            {
+                Position<3, int> expected{5, 30, 10};
+                REQUIRE(pos3+vec3 == expected);
+            }
+
+            THEN("The displacement can me substracted from the position")
+            {
+                Position<3, int> expected{5, -10, 20};
+                REQUIRE(pos3-vec3 == expected);
+            }
+        }
     }
 }
 
