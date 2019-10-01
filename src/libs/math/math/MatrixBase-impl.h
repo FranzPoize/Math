@@ -28,9 +28,9 @@ MatrixBase<TMA>::operator T_otherDerived () const
 
 
 template<TMP>
-template <class T_otherDerived,
+template <class T_otherDerived, class T_otherNumber,
           class /* default template argument used to enable_if */>
-MatrixBase<TMA>::MatrixBase(const T_otherDerived & aOther)
+MatrixBase<TMA>::MatrixBase(const MatrixBase<T_otherDerived, N_rows, N_cols, T_otherNumber> & aOther)
 {
     std::copy(aOther.begin(), aOther.end(), mStore.begin());
 }
@@ -239,7 +239,7 @@ T_derived MatrixBase<TMA>::operator-() const
 
 
 template <TMP>
-T_derived & MatrixBase<TMA>::hadamardAssign(const MatrixBase &aRhs)
+T_derived & MatrixBase<TMA>::cwMulAssign(const MatrixBase &aRhs)
 {
     for(std::size_t elementId = 0; elementId != N_rows*N_cols; ++elementId)
     {
@@ -250,9 +250,28 @@ T_derived & MatrixBase<TMA>::hadamardAssign(const MatrixBase &aRhs)
 
 
 template <TMP>
-T_derived MatrixBase<TMA>::hadamard(T_derived aRhs) const
+T_derived MatrixBase<TMA>::cwMul(T_derived aRhs) const
 {
-    return aRhs.hadamardAssign(*this);
+    return aRhs.cwMulAssign(*this);
+}
+
+
+template <TMP>
+T_derived & MatrixBase<TMA>::cwDivAssign(const MatrixBase &aRhs)
+{
+    for(std::size_t elementId = 0; elementId != N_rows*N_cols; ++elementId)
+    {
+        mStore[elementId] /= aRhs.mStore[elementId];
+    }
+    return *this->derivedThis();
+}
+
+
+template <TMP>
+T_derived MatrixBase<TMA>::cwDiv(const T_derived &aRhs) const
+{
+    T_derived left(*this);
+    return left.cwDivAssign(aRhs);
 }
 
 

@@ -63,7 +63,7 @@ SCENARIO("Vectors can be constructed and manipulated")
 
 SCENARIO("There are separate vector template classes")
 {
-    WHEN("Using different vector types of matching dimension")
+    WHEN("Using different vector types of matching dimension and value type")
     {
         THEN("They are not implicitly convertible")
         {
@@ -91,6 +91,32 @@ SCENARIO("There are separate vector template classes")
             Vec<2, int> converted = static_cast<Vec<2, int>>(source);
             REQUIRE(converted.at(0) == 5);
             REQUIRE(converted.at(1) == 10);
+        }
+    }
+
+    WHEN("Using different vector types, with different value_type")
+    {
+        THEN("They are not implicitly convertible")
+        {
+            REQUIRE_FALSE(std::is_convertible<Vec<2, float>, Position<2, int>>::value);
+        }
+
+        THEN("They can be explicitly converted")
+        {
+            Vec<2, float> source{5.f, 10.f};
+            Position<2, int> converted = static_cast<Position<2, int>>(source);
+            REQUIRE(converted.at(0) == 5);
+            REQUIRE(converted.at(1) == 10);
+        }
+    }
+
+    WHEN("Vector types are not of matching dimension")
+    {
+        THEN("They cannot be converted at all")
+        {
+            REQUIRE_FALSE(std::is_convertible<Vec<2, float>, Vec<3, float>>::value);
+            REQUIRE_FALSE(std::is_convertible<Position<2, float>, Vec<3, float>>::value);
+            REQUIRE_FALSE(std::is_convertible<Position<2, float>, Vec<3, int>>::value);
         }
     }
 }
@@ -175,9 +201,9 @@ SCENARIO("Vec class operations")
         THEN("Hadamard product can be computed")
         {
             Vec<3> expected{15., -2., -8.};
-            REQUIRE(a.hadamard(b) == expected);
+            REQUIRE(a.cwMul(b) == expected);
 
-            b.hadamardAssign(a);
+            b.cwMulAssign(a);
             REQUIRE(b == expected);
         }
 

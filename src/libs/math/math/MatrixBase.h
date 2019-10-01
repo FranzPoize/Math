@@ -99,12 +99,13 @@ public:
     //                                                 T_derived>::value>>
     //explicit operator T_otherDerived () const;
 
-    ///// \brief Explicit cast to the same derived type, except with a different value_type
-    template <class T_otherDerived,
-              class = std::enable_if_t<
-                          std::is_same<typename T_otherDerived::template derived_type<MatrixBase::value_type>,
-                                       T_derived>::value>>
-    explicit MatrixBase(const T_otherDerived & aOther);
+    /// \brief Explicit cast to a different value_type, with matching dimensions,
+    ///        wether or not the derived type is the same
+    template <class T_otherDerived, class T_otherNumber,
+              // Disable it if the value_type is the same, in which case the explicit conversion
+              // operator could have better performance
+              class = std::enable_if_t<! std::is_same<T_number, T_otherNumber>::value>>
+    explicit MatrixBase(const MatrixBase<T_otherDerived, N_rows, N_cols, T_otherNumber> & aOther);
 
 
     /// \brief Sets all elements to zero
@@ -145,19 +146,23 @@ public:
     T_derived operator-() const;
 
     /// \brief The compound componentwise multiplication
-    T_derived & hadamardAssign(const MatrixBase &aRhs);
+    T_derived & cwMulAssign(const MatrixBase &aRhs);
     /// \brief The componentwise multiplication
-    /// \note Made a member function to have the syntax with the 'operator name' in between operands
-    T_derived hadamard(T_derived aRhs) const;
+    /// \note Made a member function for the syntax with the 'operator name' in between operands
+    T_derived cwMul(T_derived aRhs) const;
 
-    
+    /// \brief The compound componentwise division
+    T_derived & cwDivAssign(const MatrixBase &aRhs);
+    /// \brief The componentwise division
+    T_derived cwDiv(const T_derived &aRhs) const;
+
     bool operator==(const MatrixBase &aRhs) const;
     bool operator!=(const MatrixBase &aRhs) const;
 
 protected:
     T_derived * derivedThis();
     const T_derived * derivedThis() const;
-    
+
 protected:
     /// \note The default default-ctor would return unitialized memory.
     /// This is usefull in implementation details, but we make it more explicit with a ctor taking a tag
@@ -202,7 +207,6 @@ T_derived operator*(T_number aScalar, const MatrixBase<TMA> &aRhs);
 
 template <TMP>
 T_derived operator/(const MatrixBase<TMA> &aLhs, T_number aScalar);
-
 
 /*
  * Output operator

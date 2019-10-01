@@ -160,10 +160,24 @@ SCENARIO("Basic operations are available on Matrix instances")
                     0., 44., -2.3,
                 };
 
-                REQUIRE((matrix.hadamard(second)) == expectedResult);
+                REQUIRE((matrix.cwMul(second)) == expectedResult);
 
-                second.hadamardAssign(matrix);
+                second.cwMulAssign(matrix);
                 REQUIRE(second == expectedResult);
+            }
+
+            THEN("They can be componentwise divided together (Hadamard division).")
+            {
+                Matrix<3, 3> expectedResult = {
+                    1./6., 2./-11.,  3./13.,
+                    5./4., 55./-1, 5./3.,
+                    0./3., 11./4., 1.15/-2.,
+                };
+
+                REQUIRE((matrix.cwDiv(second)) == expectedResult);
+
+                matrix.cwDivAssign(second);
+                REQUIRE(matrix == expectedResult);
             }
         }
     }
