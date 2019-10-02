@@ -32,7 +32,16 @@ template <class T_otherDerived, class T_otherNumber,
           class /* default template argument used to enable_if */>
 MatrixBase<TMA>::MatrixBase(const MatrixBase<T_otherDerived, N_rows, N_cols, T_otherNumber> & aOther)
 {
+    // Disable the "possible loss of data" warning because this is an *explicit* ctor
+    // only available for explicit conversions
+#if defined(_MSC_VER)
+    #pragma warning(push)
+    #pragma warning(disable: 4244)
+#endif
     std::copy(aOther.begin(), aOther.end(), mStore.begin());
+#if defined(_MSC_VER)
+    #pragma warning(pop)
+#endif
 }
 
 
