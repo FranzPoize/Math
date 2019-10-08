@@ -32,11 +32,12 @@ target_include_directories(${PROJECT_NAME}
 ##
 ## Install
 ##
-include(cmc-install)
+install(TARGETS ${PROJECT_NAME} EXPORT ${PROJECT_NAME}Targets)
 
+include(cmc-install)
 # Install the header files
 cmc_install_with_folders(DESTINATION include/${PROJECT_NAME}
                          FILES ${${PROJECT_NAME}_HEADERS})
-
-cmc_install_packageconfig(${PROJECT_NAME} NAMESPACE ad)
-
+# Setup CMake package in both build and install trees
+cmc_install_packageconfig(${PROJECT_NAME} ${PROJECT_NAME}Targets
+                          NAMESPACE ad)

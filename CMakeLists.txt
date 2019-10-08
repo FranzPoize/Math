@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 3.12)
+cmake_minimum_required(VERSION 3.14)
 
-project(Math)
+project(math)
 
 # Include cmake_helper submodule
 include("cmake/include.cmake")
