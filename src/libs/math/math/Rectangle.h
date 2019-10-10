@@ -33,9 +33,22 @@ struct Rectangle
     bool operator!=(const Rectangle &aRhs) const
     { return !(*this == aRhs); }
 
+    template <class T_positionValue>
+    bool contains(Position<2, T_positionValue> aPosition) const;
+
     Position<2, T_number>  mPosition;
     Size<2, T_number> mDimension;
 };
 
+
+template <class T_number>
+template <class T_positionValue>
+bool Rectangle<T_number>::contains(Position<2, T_positionValue> aPosition) const
+{
+    return (aPosition.x() >= mPosition.x())
+        && (aPosition.y() >= mPosition.y())
+        && (aPosition.x() <= mPosition.x()+mDimension.width())
+        && (aPosition.y() <= mPosition.y()+mDimension.height());
+}
 
 }} // namespace ad::math
