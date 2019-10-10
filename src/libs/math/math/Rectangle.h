@@ -9,10 +9,20 @@ namespace math {
 template <class T_number>
 struct Rectangle
 {
+    T_number & x()
+    { return mPosition.x(); }
+    T_number & y()
+    { return mPosition.y(); }
+
     T_number x() const
     { return mPosition.x(); }
     T_number y() const
     { return mPosition.y(); }
+
+    T_number & width()
+    { return mDimension.width(); }
+    T_number & height()
+    { return mDimension.height(); }
 
     T_number width() const
     { return mDimension.width(); }
@@ -22,10 +32,10 @@ struct Rectangle
     T_number area() const
     { return mDimension.area(); }
 
-    Position<2, T_number> originCorner()
+    Position<2, T_number> originCorner() const
     { return mPosition; }
 
-    Position<2, T_number> diagonalCorner()
+    Position<2, T_number> diagonalCorner() const
     { return mPosition + static_cast<Vec<2, T_number>>(mDimension); }
 
     bool operator==(const Rectangle &aRhs) const
