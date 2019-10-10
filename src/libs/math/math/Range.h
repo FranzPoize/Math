@@ -35,7 +35,7 @@ public:
 
     void operator++()
     { ++mCurrent; }
-    
+
     T_integer operator*() const
     { return mCurrent; }
 
@@ -46,7 +46,7 @@ private:
 
 
 template <class T_integer>
-Range<T_integer> range(T_integer aLast)
+std::enable_if_t<std::is_integral<T_integer>::value, Range<T_integer>> range(T_integer aLast)
 {
     return {aLast};
 }
