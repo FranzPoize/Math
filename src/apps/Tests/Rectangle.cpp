@@ -30,8 +30,8 @@ SCENARIO("Rectangle usage")
 
         THEN("Its corners are accessible")
         {
-            REQUIRE(rect.originCorner() == Position<2>{0., 5.});
-            REQUIRE(rect.diagonalCorner() == Position<2>{20., 35.});
+            REQUIRE(rect.origin() == Position<2>{0., 5.});
+            REQUIRE(rect.topRight() == Position<2>{20., 35.});
         }
 
         GIVEN("A position inside the rectangle")

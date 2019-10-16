@@ -32,11 +32,20 @@ struct Rectangle
     T_number area() const
     { return mDimension.area(); }
 
-    Position<2, T_number> originCorner() const
+    Position<2, T_number> origin() const
     { return mPosition; }
 
-    Position<2, T_number> diagonalCorner() const
+    Position<2, T_number> bottomLeft() const
+    { return origin(); }
+
+    Position<2, T_number> topLeft() const
+    { return mPosition + Vec<2, T_number>{static_cast<T_number>(0), mDimension.height()}; }
+
+    Position<2, T_number> topRight() const
     { return mPosition + static_cast<Vec<2, T_number>>(mDimension); }
+
+    Position<2, T_number> bottomRight() const
+    { return mPosition + Vec<2, T_number>{mDimension.width(), static_cast<T_number>(0)}; }
 
     bool operator==(const Rectangle &aRhs) const
     { return mPosition == aRhs.mPosition && mDimension == aRhs.mDimension; }
