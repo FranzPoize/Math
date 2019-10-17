@@ -34,7 +34,7 @@ T_derived operator*(const Vector<T_derived, N_dimension, T_number> aLhs,
  * Specializations
  ***/
 #define ENABLER(condition) \
-    template <int N=N_dimension, class = std::enable_if_t<(N condition && N==N_dimension)>> 
+    template <int N=N_dimension, class = std::enable_if_t<(N condition && N==N_dimension)>>
 
 #define ACCESSOR(symbol, dimension) \
     ENABLER(>= dimension)           \
@@ -107,6 +107,14 @@ struct addition_trait<Position<N_dimension, T_number>, Vec<N_dimension, T_number
                      : public std::true_type
 {};
 
+template <int N_dimension, class T_number>
+Vec<N_dimension, T_number> operator-(Position<N_dimension, T_number> aLhs,
+                                     Position<N_dimension, T_number> aRhs)
+{
+    Vec<N_dimension, T_number> result = static_cast<Vec<N_dimension, T_number>>(aLhs);
+    return (result -= static_cast<Vec<N_dimension, T_number>>(aRhs));
+}
+
 #define BASE Vector<Size<N_dimension, T_number>, N_dimension, T_number>
 template <int N_dimension, class T_number=real_number>
 class Size : public BASE
@@ -123,11 +131,11 @@ public:
     ACCESSOR(height, 2)
     ACCESSOR(depth,  3)
 
-    template <int N=N_dimension, class = std::enable_if_t<(N==2 && N==N_dimension)>> 
+    template <int N=N_dimension, class = std::enable_if_t<(N==2 && N==N_dimension)>>
     T_number area() const/* requires (N_dimension==2)*/
     {static_assert(N_dimension==2, "Disabled when dimension != 2"); return width()*height();}
 
-    template <int N=N_dimension, class = std::enable_if_t<(N==3 && N==N_dimension)>> 
+    template <int N=N_dimension, class = std::enable_if_t<(N==3 && N==N_dimension)>>
     T_number volume() const/* requires (N_dimension==3)*/
     {static_assert(N_dimension==3, "Disabled when dimension != 3"); return width()*height()*depth();}
 };

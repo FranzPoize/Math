@@ -136,7 +136,7 @@ template<class T, class U>
 using is_additivecompound_t = decltype(std::declval<T&>() += std::declval<U&>());
 
 template<class T, class U>
-using is_substractive_t = decltype(std::declval<T&>() + std::declval<U&>());
+using is_substractive_t = decltype(std::declval<T&>() - std::declval<U&>());
 template<class T, class U>
 using is_substractivecompound_t = decltype(std::declval<T&>() -= std::declval<U&>());
 
@@ -278,10 +278,14 @@ SCENARIO("Position class operations")
         REQUIRE_FALSE(ad::is_detected_v<is_additivecompound_t, Position<3>, Position<3>>);
     }
 
-    THEN("Positions cannot be substracted together")
+    THEN("Positions cannot be compound substracted together")
     {
-        REQUIRE_FALSE(ad::is_detected_v<is_substractive_t, Position<3>, Position<3>>);
         REQUIRE_FALSE(ad::is_detected_v<is_substractivecompound_t, Position<3>, Position<3>>);
+    }
+
+    THEN("Positions can be substracted together")
+    {
+        REQUIRE(ad::is_detected_v<is_substractive_t, Position<3>, Position<3>>);
     }
 
     THEN("A displacement can be added to a position of same dimension and value type")
@@ -333,6 +337,18 @@ SCENARIO("Position class operations")
             {
                 Position<3, int> expected{5, -10, 20};
                 REQUIRE(pos3-vec3 == expected);
+            }
+        }
+
+        GIVEN("Another position of dimension 3")
+        {
+            Position<3, int> pos3b{5, 30, 5};
+
+            THEN("Substraction the first position from the second gives the displacement")
+            {
+                Vec<3, int> expected{0, 20, -10};
+                REQUIRE(pos3b-pos3 == expected);
+                REQUIRE(pos3b == pos3+expected);
             }
         }
     }
