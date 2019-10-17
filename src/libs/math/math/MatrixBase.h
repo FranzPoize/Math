@@ -55,7 +55,7 @@ private:
     private:
         T_number *mRow;
     };
-    
+
     class const_Row
     {
         friend class MatrixBase;
@@ -80,8 +80,8 @@ public:
     ///        (notably prevents this constructor from being selected as the default ctor)
     template <class... T_element,
               std::enable_if_t<sizeof...(T_element) == N_rows*N_cols, int> = 0>
-    MatrixBase(T_element... vaElements);
-    
+    constexpr MatrixBase(T_element... vaElements);
+
     /// \brief Explicit cast to another derived type of same dimensions and scalar type
     template <class T_otherDerived,
               class = std::enable_if_t<std::is_base_of<MatrixBase<T_otherDerived,
@@ -105,7 +105,10 @@ public:
               // Disable it if the value_type is the same, in which case the explicit conversion
               // operator could have better performance
               class = std::enable_if_t<! std::is_same<T_number, T_otherNumber>::value>>
-    explicit MatrixBase(const MatrixBase<T_otherDerived, N_rows, N_cols, T_otherNumber> & aOther);
+    constexpr explicit MatrixBase(const MatrixBase<T_otherDerived,
+                                                   N_rows,
+                                                   N_cols,
+                                                   T_otherNumber> & aOther);
 
 
     /// \brief Sets all elements to zero

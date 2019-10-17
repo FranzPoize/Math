@@ -1,7 +1,7 @@
 template<TMP>
 template <class... T_element,
           std::enable_if_t<sizeof...(T_element) == N_rows*N_cols, int>>
-MatrixBase<TMA>::MatrixBase(T_element... vaElements) :
+constexpr MatrixBase<TMA>::MatrixBase(T_element... vaElements) :
         mStore{ {vaElements...} }
 {}
 
@@ -30,7 +30,10 @@ MatrixBase<TMA>::operator T_otherDerived () const
 template<TMP>
 template <class T_otherDerived, class T_otherNumber,
           class /* default template argument used to enable_if */>
-MatrixBase<TMA>::MatrixBase(const MatrixBase<T_otherDerived, N_rows, N_cols, T_otherNumber> & aOther)
+constexpr MatrixBase<TMA>::MatrixBase(const MatrixBase<T_otherDerived,
+                                                       N_rows,
+                                                       N_cols,
+                                                       T_otherNumber> & aOther)
 {
     // Disable the "possible loss of data" warning because this is an *explicit* ctor
     // only available for explicit conversions
