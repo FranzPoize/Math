@@ -52,6 +52,11 @@ struct Rectangle
     bool operator!=(const Rectangle &aRhs) const
     { return !(*this == aRhs); }
 
+    Rectangle centered() const
+    { return { {mPosition - static_cast<Vec<2, T_number>>(mDimension/static_cast<T_number>(2))},
+               mDimension };
+    }
+
     template <class T_positionValue>
     bool contains(Position<2, T_positionValue> aPosition) const;
 

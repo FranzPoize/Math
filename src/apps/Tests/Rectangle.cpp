@@ -34,6 +34,12 @@ SCENARIO("Rectangle usage")
             REQUIRE(rect.topRight() == Position<2>{20., 35.});
         }
 
+        THEN("It can generate a centered rectangle")
+        {
+            Rectangle<double> expected{ {-10., -10.}, {20., 30.} };
+            REQUIRE(rect.centered() == expected);
+        }
+
         GIVEN("A position inside the rectangle")
         {
             Position<2, double> in{10., 15.};
