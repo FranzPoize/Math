@@ -23,6 +23,12 @@ public:
 
     /// \brief Dot product
     T_number dot(const Vector &aRhs) const;
+
+    /// \brief Vector magnitude
+    T_number getNorm() const;
+
+    /// \brief Compound normalization
+    Vector & normalize();
 };
 
 template <class T_derived, int N_dimension, class T_number>
