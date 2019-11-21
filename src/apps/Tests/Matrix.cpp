@@ -4,6 +4,7 @@
 #include <math/Range.h>
 #include <math/Vector.h>
 
+#include <algorithm>
 #include <iostream>
 #include <iomanip>
 

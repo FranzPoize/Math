@@ -3,6 +3,8 @@
 
 #include <math/Vector.h>
 
+#include <algorithm>
+
 
 using namespace ad::math;
 
