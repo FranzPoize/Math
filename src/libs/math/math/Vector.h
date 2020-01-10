@@ -28,7 +28,7 @@ public:
     T_number getNorm() const;
 
     /// \brief Compound normalization
-    Vector & normalize();
+    T_derived & normalize();
 };
 
 template <class T_derived, int N_dimension, class T_number>
@@ -150,8 +150,6 @@ public:
 #undef ACCESSOR
 #undef ENABLER
 
-#include "Vector-impl.h"
-
-
 }} // namespace ad::math
 
+#include "Vector-impl.h"

@@ -226,7 +226,18 @@ SCENARIO("Vec class operations")
         THEN("The vector can be multiplied by a scalar")
         {
             Vec<3> expected = {3.*5., 3.*6, 3.*15.};
-            REQUIRE( vector*3. == expected);
+            REQUIRE(vector*3. == expected);
+        }
+
+        THEN("The norm of the vector can be computed")
+        {
+            double expected = std::sqrt(5.*5. + 6.*6. + 15.*15.);
+            REQUIRE(vector.getNorm() == expected);
+        }
+
+        THEN("The vector can be normalized")
+        {
+            REQUIRE(vector.normalize().getNorm() == Approx(1.));
         }
 
         GIVEN("A 3x3 matrix")
