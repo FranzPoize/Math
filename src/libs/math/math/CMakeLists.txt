@@ -22,7 +22,7 @@ add_custom_target(${PROJECT_NAME}_IDE
         ${${PROJECT_NAME}_HEADERS}
 )
 
-target_include_directories(${PROJECT_NAME} 
+target_include_directories(${PROJECT_NAME}
     INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
         $<INSTALL_INTERFACE:include/>
@@ -40,4 +40,4 @@ cmc_install_with_folders(DESTINATION include/${PROJECT_NAME}
                          FILES ${${PROJECT_NAME}_HEADERS})
 # Setup CMake package in both build and install trees
 cmc_install_packageconfig(${PROJECT_NAME} ${PROJECT_NAME}Targets
-                          NAMESPACE ad)
+                          NAMESPACE ad::)
