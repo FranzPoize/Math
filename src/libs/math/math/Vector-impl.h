@@ -49,14 +49,20 @@ T_number Vector<T_derived, N_dimension, T_number>::dot(const Vector &aRhs) const
 }
 
 template <class T_derived, int N_dimension, class T_number>
-T_number Vector<T_derived, N_dimension, T_number>::getNorm() const
+T_number Vector<T_derived, N_dimension, T_number>::getNormSquared() const
 {
     T_number accumulator = 0;
     for(std::size_t col = 0; col != N_dimension; ++col)
     {
         accumulator += std::pow((*this)[col], 2);
     }
-    return std::sqrt(accumulator);
+    return accumulator;
+}
+
+template <class T_derived, int N_dimension, class T_number>
+T_number Vector<T_derived, N_dimension, T_number>::getNorm() const
+{
+    return std::sqrt(getNormSquared());
 }
 
 template <class T_derived, int N_dimension, class T_number>

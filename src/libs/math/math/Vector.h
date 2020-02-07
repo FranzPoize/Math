@@ -24,6 +24,9 @@ public:
     /// \brief Dot product
     T_number dot(const Vector &aRhs) const;
 
+    /// \brief Vector magnitude squared (faster than normal magnitudes)
+    T_number getNormSquared() const;
+
     /// \brief Vector magnitude
     T_number getNorm() const;
 
