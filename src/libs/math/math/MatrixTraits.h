@@ -6,14 +6,16 @@ namespace ad {
 namespace math {
 
 
-template <class T_derivedLeft, class T_derivedRight, class T_enabler>
+template <class T_derivedLeft, class T_derivedRight>
 struct addition_trait : public std::false_type
 {};
 
-template <class T_derivedLeft, class T_derivedRight>
-struct addition_trait<T_derivedLeft, T_derivedRight,
-                      std::enable_if_t<std::is_same<T_derivedLeft, T_derivedRight>::value>> 
-                     : public std::true_type
+// For GCC this would be ambiguous with the "per derived-type" partial specialization in Vector.h
+//template <class T_derivedLeft, class T_derivedRight>
+//struct addition_trait<T_derivedLeft, T_derivedRight,
+//                      std::enable_if_t<std::is_same<T_derivedLeft, T_derivedRight>::value>>
+template <class T_derived>
+struct addition_trait<T_derived, T_derived> : public std::true_type
 {
     // Implementer's note:
     //   The trait could also return the addition result type, allowing more flexibility
@@ -33,7 +35,7 @@ struct addition_trait<T_derivedLeft, T_derivedRight,
 //using additive_t = typename addition_trait<T_derivedLeft, T_derivedRight, void>::result_type;
 
 template <class T_derivedLeft, class T_derivedRight>
-using additive_t = std::enable_if_t<addition_trait<T_derivedLeft, T_derivedRight, void>::value,
+using additive_t = std::enable_if_t<addition_trait<T_derivedLeft, T_derivedRight>::value,
                                     T_derivedLeft>;
 
 }} // namespace ad::math

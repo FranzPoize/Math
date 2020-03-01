@@ -106,13 +106,14 @@ public:
 };
 #undef BASE
 
+// For GCC this is ambiguous with the "default" partial specialization in MatrixTraits.h
 template <int N_dimension, class T_number>
-struct addition_trait<Position<N_dimension, T_number>, Position<N_dimension, T_number>, void>
+struct addition_trait<Position<N_dimension, T_number>, Position<N_dimension, T_number>>
                      : public std::false_type
 {};
 
 template <int N_dimension, class T_number>
-struct addition_trait<Position<N_dimension, T_number>, Vec<N_dimension, T_number>, void>
+struct addition_trait<Position<N_dimension, T_number>, Vec<N_dimension, T_number>>
                      : public std::true_type
 {};
 
