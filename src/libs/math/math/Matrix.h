@@ -20,6 +20,9 @@ public:
     using derived_type = Matrix<N_rows, N_cols, T>;
 
     static Matrix Identity();
+
+    using base_type::operator*=;
+    Matrix & operator*=(const Matrix & aRhs);
 };
 
 
@@ -51,6 +54,14 @@ Matrix<N_lRows, N_rCols, T_number> operator*(const Matrix<N_lRows, N_lCols, T_nu
 {
     static_assert(N_lCols == N_rRows, "Matrix multiplication dimension mismatch.");
     return multiplyBase<Matrix<N_lRows, N_rCols, T_number>>(aLhs, aRhs);
+}
+
+
+template <int N_rows, int N_cols, class T_number>
+auto Matrix<N_rows, N_cols, T_number>::operator*=(const Matrix & aRhs) -> Matrix &
+{
+    *this = *this * aRhs;
+    return *this;
 }
 
 
