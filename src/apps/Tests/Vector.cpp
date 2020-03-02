@@ -1,11 +1,13 @@
 #include "catch.hpp"
 #include "detection.h"
+#include "operation_detectors.h"
 
 #include <math/Vector.h>
 
 #include <algorithm>
 
 
+using namespace ad;
 using namespace ad::math;
 
 
@@ -77,6 +79,9 @@ SCENARIO("There are separate vector template classes")
             Size<2> size{5., 10.};
             Vec<2> vec = static_cast<Vec<2>>(size);
             REQUIRE(std::equal(vec.begin(), vec.end(), size.begin()));
+
+            Vec<2> vec_as = size.as<Vec>();
+            REQUIRE(std::equal(vec_as.begin(), vec_as.end(), size.begin()));
         }
     }
 
@@ -90,9 +95,17 @@ SCENARIO("There are separate vector template classes")
         THEN("They can be explicitly converted")
         {
             Vec<2> source{5., 10.};
-            Vec<2, int> converted = static_cast<Vec<2, int>>(source);
-            REQUIRE(converted.at(0) == 5);
-            REQUIRE(converted.at(1) == 10);
+            {
+                Vec<2, int> converted = static_cast<Vec<2, int>>(source);
+                REQUIRE(converted.at(0) == 5);
+                REQUIRE(converted.at(1) == 10);
+            }
+
+            {
+                Vec<2, int> converted = source.as<Vec, int>();
+                REQUIRE(converted.at(0) == 5);
+                REQUIRE(converted.at(1) == 10);
+            }
         }
     }
 
@@ -106,9 +119,17 @@ SCENARIO("There are separate vector template classes")
         THEN("They can be explicitly converted")
         {
             Vec<2, float> source{5.f, 10.f};
-            Position<2, int> converted = static_cast<Position<2, int>>(source);
-            REQUIRE(converted.at(0) == 5);
-            REQUIRE(converted.at(1) == 10);
+            {
+                Position<2, int> converted = static_cast<Position<2, int>>(source);
+                REQUIRE(converted.at(0) == 5);
+                REQUIRE(converted.at(1) == 10);
+            }
+
+            {
+                Position<2, int> converted = source.as<Position, int>();
+                REQUIRE(converted.at(0) == 5);
+                REQUIRE(converted.at(1) == 10);
+            }
         }
     }
 
@@ -132,16 +153,6 @@ HAS(z)
 HAS(w)
 
 
-template<class T, class U>
-using is_additive_t = decltype(std::declval<T&>() + std::declval<U&>());
-template<class T, class U>
-using is_additivecompound_t = decltype(std::declval<T&>() += std::declval<U&>());
-
-template<class T, class U>
-using is_substractive_t = decltype(std::declval<T&>() - std::declval<U&>());
-template<class T, class U>
-using is_substractivecompound_t = decltype(std::declval<T&>() -= std::declval<U&>());
-
 SCENARIO("Vec class operations")
 {
     THEN("A zero factory is available")
@@ -154,20 +165,20 @@ SCENARIO("Vec class operations")
 
     THEN("Two vectors of matching dimension and type can be added together")
     {
-        REQUIRE(ad::is_detected_v<is_additive_t, Vec<5>, Vec<5>>);
-        REQUIRE(ad::is_detected_v<is_additivecompound_t, Vec<2>, Vec<2>>);
+        REQUIRE(is_detected_v<is_additive_t, Vec<5>, Vec<5>>);
+        REQUIRE(is_detected_v<is_additivecompound_t, Vec<2>, Vec<2>>);
     }
 
     THEN("Two vectors of different dimension cannot be added together")
     {
-        REQUIRE_FALSE(ad::is_detected_v<is_additive_t, Vec<4>, Vec<5>>);
-        REQUIRE_FALSE(ad::is_detected_v<is_additivecompound_t, Vec<3>, Vec<2>>);
+        REQUIRE_FALSE(is_detected_v<is_additive_t, Vec<4>, Vec<5>>);
+        REQUIRE_FALSE(is_detected_v<is_additivecompound_t, Vec<3>, Vec<2>>);
     }
 
     THEN("Two vectors of different value type cannot be added together")
     {
-        REQUIRE_FALSE(ad::is_detected_v<is_additive_t, Vec<4>, Vec<4, int>>);
-        REQUIRE_FALSE(ad::is_detected_v<is_additivecompound_t, Vec<3, int>, Vec<3>>);
+        REQUIRE_FALSE(is_detected_v<is_additive_t, Vec<4>, Vec<4, int>>);
+        REQUIRE_FALSE(is_detected_v<is_additivecompound_t, Vec<3, int>, Vec<3>>);
     }
 
     GIVEN("Two 3 elements vectors")
@@ -265,20 +276,20 @@ SCENARIO("Vec class operations")
 
     THEN("Accessors are available depending on dimension")
     {
-        REQUIRE(ad::is_detected_v<has_x_t, Vec<2>>);
-        REQUIRE(ad::is_detected_v<has_y_t, Vec<2>>);
-        REQUIRE_FALSE(ad::is_detected_v<has_z_t, Vec<2>>);
-        REQUIRE_FALSE(ad::is_detected_v<has_w_t, Vec<2>>);
+        REQUIRE(is_detected_v<has_x_t, Vec<2>>);
+        REQUIRE(is_detected_v<has_y_t, Vec<2>>);
+        REQUIRE_FALSE(is_detected_v<has_z_t, Vec<2>>);
+        REQUIRE_FALSE(is_detected_v<has_w_t, Vec<2>>);
 
-        REQUIRE(ad::is_detected_v<has_x_t, Vec<3>>);
-        REQUIRE(ad::is_detected_v<has_y_t, Vec<3>>);
-        REQUIRE(ad::is_detected_v<has_z_t, Vec<3>>);
-        REQUIRE_FALSE(ad::is_detected_v<has_w_t, Vec<3>>);
+        REQUIRE(is_detected_v<has_x_t, Vec<3>>);
+        REQUIRE(is_detected_v<has_y_t, Vec<3>>);
+        REQUIRE(is_detected_v<has_z_t, Vec<3>>);
+        REQUIRE_FALSE(is_detected_v<has_w_t, Vec<3>>);
 
-        REQUIRE(ad::is_detected_v<has_x_t, Vec<4>>);
-        REQUIRE(ad::is_detected_v<has_y_t, Vec<4>>);
-        REQUIRE(ad::is_detected_v<has_z_t, Vec<4>>);
-        REQUIRE(ad::is_detected_v<has_w_t, Vec<4>>);
+        REQUIRE(is_detected_v<has_x_t, Vec<4>>);
+        REQUIRE(is_detected_v<has_y_t, Vec<4>>);
+        REQUIRE(is_detected_v<has_z_t, Vec<4>>);
+        REQUIRE(is_detected_v<has_w_t, Vec<4>>);
     }
 }
 
@@ -287,30 +298,30 @@ SCENARIO("Position class operations")
 {
     THEN("Positions cannot be added together")
     {
-        REQUIRE_FALSE(ad::is_detected_v<is_additive_t, Position<3>, Position<3>>);
-        REQUIRE_FALSE(ad::is_detected_v<is_additivecompound_t, Position<3>, Position<3>>);
+        REQUIRE_FALSE(is_detected_v<is_additive_t, Position<3>, Position<3>>);
+        REQUIRE_FALSE(is_detected_v<is_additivecompound_t, Position<3>, Position<3>>);
     }
 
     THEN("Positions cannot be compound substracted together")
     {
-        REQUIRE_FALSE(ad::is_detected_v<is_substractivecompound_t, Position<3>, Position<3>>);
+        REQUIRE_FALSE(is_detected_v<is_substractivecompound_t, Position<3>, Position<3>>);
     }
 
     THEN("Positions can be substracted together")
     {
-        REQUIRE(ad::is_detected_v<is_substractive_t, Position<3>, Position<3>>);
+        REQUIRE(is_detected_v<is_substractive_t, Position<3>, Position<3>>);
     }
 
     THEN("A displacement can be added to a position of same dimension and value type")
     {
-        REQUIRE(ad::is_detected_v<is_additive_t, Position<3>, Vec<3>>);
-        REQUIRE(ad::is_detected_v<is_additivecompound_t, Position<3>, Vec<3>>);
+        REQUIRE(is_detected_v<is_additive_t, Position<3>, Vec<3>>);
+        REQUIRE(is_detected_v<is_additivecompound_t, Position<3>, Vec<3>>);
     }
 
     THEN("A position cannot be added to a displacement even with matching dimension and value type")
     {
-        REQUIRE_FALSE(ad::is_detected_v<is_additive_t, Vec<3>, Position<3>>);
-        REQUIRE_FALSE(ad::is_detected_v<is_additivecompound_t, Vec<3>, Position<3>>);
+        REQUIRE_FALSE(is_detected_v<is_additive_t, Vec<3>, Position<3>>);
+        REQUIRE_FALSE(is_detected_v<is_additivecompound_t, Vec<3>, Position<3>>);
     }
 
     GIVEN("A position instance of dimension 3")
@@ -409,7 +420,7 @@ SCENARIO("Size class operations")
 
         THEN("Volume member function is disabled")
         {
-            REQUIRE_FALSE(ad::is_detected_v<has_volume_t, Size<2>>);
+            REQUIRE_FALSE(is_detected_v<has_volume_t, Size<2>>);
         }
     }
 
@@ -435,7 +446,7 @@ SCENARIO("Size class operations")
             REQUIRE_FALSE(has_area<Size<3>>::value);
 
             // Equivalent, but using detection experimental feature
-            REQUIRE_FALSE(ad::is_detected<has_area_t, Size<3>>::value);
+            REQUIRE_FALSE(is_detected<has_area_t, Size<3>>::value);
         }
     }
 }

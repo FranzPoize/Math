@@ -1,5 +1,8 @@
 #include "catch.hpp"
 
+#include "detection.h"
+#include "operation_detectors.h"
+
 #include <math/Matrix.h>
 #include <math/Range.h>
 #include <math/Vector.h>
@@ -9,6 +12,7 @@
 #include <iomanip>
 
 
+using namespace ad;
 using namespace ad::math;
 
 
@@ -72,6 +76,7 @@ SCENARIO("Matrix conversion")
     }
 
 }
+
 
 SCENARIO("Basic operations are available on Matrix instances")
 {
@@ -151,6 +156,12 @@ SCENARIO("Basic operations are available on Matrix instances")
                 };
 
                 REQUIRE((matrix * second) == expectedResult);
+
+                THEN("They can even use compound multiplication.")
+                {
+                    matrix *= second;
+                    REQUIRE(matrix == expectedResult);
+                }
             }
 
             THEN("They can be componentwise multiplied together (Hadamard product).")
@@ -181,6 +192,51 @@ SCENARIO("Basic operations are available on Matrix instances")
                 REQUIRE(matrix == expectedResult);
             }
         }
+
+        GIVEN("A second 4x3 matrix")
+        {
+            Matrix<3, 4> second = {
+                6., -11., 13., 5.,
+                4.,  -1.,  3., 8.,
+                3.,   4., -2., 15.,
+            };
+
+            THEN("They can be multiplied together.")
+            {
+                Matrix<3, 4> expectedResult = {
+                    23.,   -1.,   13.,  66.,
+                    265.,  -90.,  220., 540.,
+                    47.45, -6.4,  30.7, 105.25,
+                };
+
+                REQUIRE((matrix * second) == expectedResult);
+            }
+        }
+    }
+}
+
+
+SCENARIO("Matrix available operations")
+{
+    THEN("Two square matrices of same dimension can be compound multiplied")
+    {
+        REQUIRE(is_detected_v<is_multiplicative_assignable_t,
+                                  Matrix<4, 4>, Matrix<4,4>>);
+
+    }
+    THEN("Two square matrices of different dimension cannot be compound multiplied")
+    {
+        REQUIRE_FALSE(is_detected_v<is_multiplicative_assignable_t, Matrix<3,3>, Matrix<4, 4>>);
+    }
+    THEN("Two multipliable matrices of different size cannot be compound multiplied")
+    {
+        REQUIRE(is_detected_v<is_multiplicative_t, Matrix<3,3>, Matrix<3, 4>>);
+        REQUIRE_FALSE(is_detected_v<is_multiplicative_assignable_t, Matrix<3,3>, Matrix<3, 4>>);
+    }
+    THEN("Two non-square matrices of same dimension cannot be compound multiplied")
+    {
+        // Only disabled by static assert
+        //REQUIRE_FALSE(is_detected_v<is_multiplicative_assignable_t, Matrix<3,4>, Matrix<3, 4>>);
     }
 }
 

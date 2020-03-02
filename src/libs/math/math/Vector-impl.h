@@ -7,6 +7,13 @@ namespace math {
  * Vector implementation
  */
 template <class T_derived, int N_dimension, class T_number>
+template <template <int, class> class TT_derivedVector, class T_targetNumber>
+TT_derivedVector<N_dimension, T_targetNumber> Vector<T_derived, N_dimension, T_number>::as()
+{
+    return static_cast<TT_derivedVector<N_dimension, T_targetNumber>>(*this);
+}
+
+template <class T_derived, int N_dimension, class T_number>
 T_number & Vector<T_derived, N_dimension, T_number>::operator[](std::size_t aColumn)
 {
     return this->at(aColumn);

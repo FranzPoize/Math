@@ -60,6 +60,7 @@ Matrix<N_lRows, N_rCols, T_number> operator*(const Matrix<N_lRows, N_lCols, T_nu
 template <int N_rows, int N_cols, class T_number>
 auto Matrix<N_rows, N_cols, T_number>::operator*=(const Matrix & aRhs) -> Matrix &
 {
+    static_assert(N_rows == N_cols, "Matrix multiplication assignment only available for square Matrices");
     *this = *this * aRhs;
     return *this;
 }

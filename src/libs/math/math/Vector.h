@@ -15,6 +15,9 @@ class Vector : public MatrixBase<T_derived, 1, N_dimension, T_number>
     using base_type::base_type;
 
 public:
+    template <template <int, class> class TT_derivedVector, class T_targetNumber=T_number>
+    TT_derivedVector<N_dimension, T_targetNumber> as();
+
     T_number &operator[](std::size_t aColumn);
     T_number operator[](std::size_t aColumn) const;
 
@@ -106,7 +109,6 @@ public:
 };
 #undef BASE
 
-// For GCC this is ambiguous with the "default" partial specialization in MatrixTraits.h
 template <int N_dimension, class T_number>
 struct addition_trait<Position<N_dimension, T_number>, Position<N_dimension, T_number>>
                      : public std::false_type

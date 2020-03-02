@@ -10,10 +10,12 @@ template <class T_derivedLeft, class T_derivedRight>
 struct addition_trait : public std::false_type
 {};
 
-// For GCC this would be ambiguous with the "per derived-type" partial specialization in Vector.h
+// This would be ambiguous with the "per derived-type" partial specialization in Vector.h
+// see: https://stackoverflow.com/q/58960177/1027706
 //template <class T_derivedLeft, class T_derivedRight>
 //struct addition_trait<T_derivedLeft, T_derivedRight,
 //                      std::enable_if_t<std::is_same<T_derivedLeft, T_derivedRight>::value>>
+
 template <class T_derived>
 struct addition_trait<T_derived, T_derived> : public std::true_type
 {
