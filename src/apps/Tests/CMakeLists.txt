@@ -6,6 +6,7 @@ set(${PROJECT_NAME}_HEADERS
 )
 
 set(${PROJECT_NAME}_SOURCES
+    Angle.cpp
     Barycentric.cpp
     Matrix.cpp
     Polynomial.cpp
@@ -29,7 +30,7 @@ include(cmc-cpp)
 cmc_cpp_all_warnings_as_errors(${PROJECT_NAME})
 
 
-## 
+##
 ## Install
 ##
 install(TARGETS ${PROJECT_NAME} RUNTIME)

@@ -1,8 +1,10 @@
 project(math)
 
 set(${PROJECT_NAME}_HEADERS
+    Angle.h
     Barycentric.h
     commons.h
+    Constants.h
     Matrix.h
     MatrixBase.h
     MatrixBase-impl.h
