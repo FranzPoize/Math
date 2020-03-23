@@ -181,7 +181,7 @@ Radian<double> operator"" _rad(long double aValue)
 { return Radian<double>(aValue); }
 
 Radian<float> operator"" _radf(long double aValue)
-{ return Radian<float>(aValue); }
+{ return Radian<float>(static_cast<float>(aValue)); }
 Radian<float> operator"" _radF(long double aValue)
 { return operator"" _radf(aValue); }
 
@@ -191,14 +191,14 @@ Radian<long double> operator"" _radL(long double aValue)
 { return operator"" _radl(aValue); }
 
 Radian<int> operator"" _rad(unsigned long long aValue)
-{ return Radian<int>(aValue); }
+{ return Radian<int>(static_cast<int>(aValue)); }
 
 
 Degree<double> operator"" _deg(long double aValue)
 { return Degree<double>(aValue); }
 
 Degree<float> operator"" _degf(long double aValue)
-{ return Degree<float>(aValue); }
+{ return Degree<float>(static_cast<float>(aValue)); }
 Degree<float> operator"" _degF(long double aValue)
 { return operator"" _degf(aValue); }
 
@@ -208,7 +208,7 @@ Degree<long double> operator"" _degL(long double aValue)
 { return operator"" _degl(aValue); }
 
 Degree<int> operator"" _deg(unsigned long long aValue)
-{ return Degree<int>(aValue); }
+{ return Degree<int>(static_cast<int>(aValue)); }
 
 
 //
@@ -262,11 +262,11 @@ template <template <class> class TT_angle>
 TT_angle<T_representation> Angle<T_representation, T_unitTag>::as() const
 {
     // Note: allows narrowing
-    return TT_angle<T_representation>(
+    return TT_angle<T_representation>(static_cast<T_representation>(
         value()
         * Angle_trait<Angle>::radian_factor
         / Angle_trait<TT_angle<T_representation>>::radian_factor
-    );
+    ));
 }
 
 } // namespace math
