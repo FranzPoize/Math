@@ -1,11 +1,14 @@
-# common 
+# common
 *.*~
 
-# Cmake 
+# Cmake
 /build/
 /build_*/
 
-# Vim 
+# Conan
+/conan/test_package/build/
+
+# Vim
 *.swp
 *.swo
 
