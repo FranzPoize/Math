@@ -24,6 +24,8 @@ add_custom_target(${PROJECT_NAME}_IDE
         ${${PROJECT_NAME}_HEADERS}
 )
 
+add_library(ad::${PROJECT_NAME} ALIAS ${PROJECT_NAME})
+
 target_include_directories(${PROJECT_NAME}
     INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>

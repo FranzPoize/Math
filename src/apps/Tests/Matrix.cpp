@@ -16,6 +16,12 @@ using namespace ad;
 using namespace ad::math;
 
 
+SCENARIO("Matrices types properties")
+{
+    REQUIRE(std::is_trivially_copyable<Matrix<4,8>>::value);
+}
+
+
 SCENARIO("Matrices have a different factories")
 {
     WHEN("Using the Identity factory")

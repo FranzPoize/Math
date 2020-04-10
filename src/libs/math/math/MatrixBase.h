@@ -99,6 +99,8 @@ public:
     //                                                 T_derived>::value>>
     //explicit operator T_otherDerived () const;
 
+    // NOTE: This is not a copy constructor because it is templated
+    // see: https://en.cppreference.com/w/cpp/language/copy_constructor
     /// \brief Explicit cast to a different value_type, with matching dimensions,
     ///        wether or not the derived type is the same
     template <class T_otherDerived, class T_otherNumber,

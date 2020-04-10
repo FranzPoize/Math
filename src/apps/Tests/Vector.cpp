@@ -11,6 +11,17 @@ using namespace ad;
 using namespace ad::math;
 
 
+SCENARIO("Vector types properties")
+{
+    // Trivially copyable types have great properties for low level manipulation
+    // (e.g. file serialization)
+    // see: https://en.cppreference.com/w/cpp/types/is_trivially_copyable#Notes
+    REQUIRE(std::is_trivially_copyable<Vec<3>>::value);
+    REQUIRE(std::is_trivially_copyable<Size<2>>::value);
+    REQUIRE(std::is_trivially_copyable<Position<8>>::value);
+}
+
+
 SCENARIO("Vectors can be constructed and manipulated")
 {
     WHEN("Using the Zero factory")
