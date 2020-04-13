@@ -16,45 +16,47 @@ class Vector : public MatrixBase<T_derived, 1, N_dimension, T_number>
 
 public:
     template <template <int, class> class TT_derivedVector, class T_targetNumber=T_number>
-    TT_derivedVector<N_dimension, T_targetNumber> as();
+    constexpr TT_derivedVector<N_dimension, T_targetNumber> as() const;
 
-    T_number &operator[](std::size_t aColumn);
-    T_number operator[](std::size_t aColumn) const;
+    constexpr T_number &operator[](std::size_t aColumn);
+    constexpr T_number operator[](std::size_t aColumn) const;
 
-    T_derived & operator*=(const Matrix<N_dimension, N_dimension, T_number> &aRhs);
+    constexpr T_derived & operator*=(const Matrix<N_dimension, N_dimension, T_number> &aRhs);
     using base_type::operator*=;
 
     /// \brief Dot product
-    T_number dot(const Vector &aRhs) const;
+    constexpr T_number dot(const Vector &aRhs) const;
 
     /// \brief Vector magnitude squared (faster than normal magnitudes)
-    T_number getNormSquared() const;
+    constexpr T_number getNormSquared() const;
 
+    // Implementer's note: Not constexpr, because math functions are not (relies on std::sqrt)
     /// \brief Vector magnitude
-    T_number getNorm() const;
+    /*constexpr*/ T_number getNorm() const;
 
     /// \brief Compound normalization
-    T_derived & normalize();
+    /*constexpr*/ T_derived & normalize();
 };
 
 template <class T_derived, int N_dimension, class T_number>
-T_derived operator*(const Vector<T_derived, N_dimension, T_number> aLhs,
-                    const Matrix<N_dimension, N_dimension, T_number> &aRhs);
+constexpr T_derived operator*(const Vector<T_derived, N_dimension, T_number> aLhs,
+                              const Matrix<N_dimension, N_dimension, T_number> &aRhs);
 
 
 /***
  * Specializations
  ***/
+
 #define ENABLER(condition) \
     template <int N=N_dimension, class = std::enable_if_t<(N condition && N==N_dimension)>>
 
-#define ACCESSOR(symbol, dimension) \
+#define ACCESSOR_DIMENSION(symbol, dimension) \
     ENABLER(>= dimension)           \
-    T_number & symbol()/* requires (N_dimension>=dimension)*/ \
+    constexpr T_number & symbol()/* requires (N_dimension>=dimension)*/ \
     {static_assert(N_dimension>=dimension, "Disabled when dimensions < " #dimension); return this->at(dimension-1);} \
                                     \
     ENABLER(>= dimension)           \
-    T_number symbol() const/* requires (N_dimension>=dimension)*/ \
+    constexpr T_number symbol() const/* requires (N_dimension>=dimension)*/ \
     {static_assert(N_dimension>=dimension, "Disabled when dimensions <" #dimension); return this->at(dimension-1);}
 
 
@@ -79,10 +81,10 @@ public:
     //template <int N=N_dimension, class = std::enable_if_t<(N>1 && N==N_dimension)>> T_number & y()
     //{return this->at(1);}
 
-    ACCESSOR(x, 1)
-    ACCESSOR(y, 2)
-    ACCESSOR(z, 3)
-    ACCESSOR(w, 4)
+    ACCESSOR_DIMENSION(x, 1)
+    ACCESSOR_DIMENSION(y, 2)
+    ACCESSOR_DIMENSION(z, 3)
+    ACCESSOR_DIMENSION(w, 4)
 
     /// \todo Could be extended to all dimensions >= 3?
     Vec & crossAssign(const Vec &aRhs) /*requires(N_dimension==3)*/;
@@ -102,10 +104,10 @@ public:
     template<class T>
     using derived_type = Position<N_dimension, T>;
 
-    ACCESSOR(x, 1)
-    ACCESSOR(y, 2)
-    ACCESSOR(z, 3)
-    ACCESSOR(w, 4)
+    ACCESSOR_DIMENSION(x, 1)
+    ACCESSOR_DIMENSION(y, 2)
+    ACCESSOR_DIMENSION(z, 3)
+    ACCESSOR_DIMENSION(w, 4)
 };
 #undef BASE
 
@@ -139,9 +141,9 @@ public:
     template<class T>
     using derived_type = Size<N_dimension, T>;
 
-    ACCESSOR(width,  1)
-    ACCESSOR(height, 2)
-    ACCESSOR(depth,  3)
+    ACCESSOR_DIMENSION(width,  1)
+    ACCESSOR_DIMENSION(height, 2)
+    ACCESSOR_DIMENSION(depth,  3)
 
     template <int N=N_dimension, class = std::enable_if_t<(N==2 && N==N_dimension)>>
     T_number area() const/* requires (N_dimension==2)*/
@@ -153,8 +155,10 @@ public:
 };
 #undef BASE
 
-#undef ACCESSOR
+
+#undef ACCESSOR_DIMENSION
 #undef ENABLER
+
 
 }} // namespace ad::math
 

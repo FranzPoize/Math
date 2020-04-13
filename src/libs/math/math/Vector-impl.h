@@ -8,28 +8,29 @@ namespace math {
  */
 template <class T_derived, int N_dimension, class T_number>
 template <template <int, class> class TT_derivedVector, class T_targetNumber>
-TT_derivedVector<N_dimension, T_targetNumber> Vector<T_derived, N_dimension, T_number>::as()
+constexpr TT_derivedVector<N_dimension, T_targetNumber>
+Vector<T_derived, N_dimension, T_number>::as() const
 {
     return static_cast<TT_derivedVector<N_dimension, T_targetNumber>>(*this);
 }
 
 template <class T_derived, int N_dimension, class T_number>
-T_number & Vector<T_derived, N_dimension, T_number>::operator[](std::size_t aColumn)
+constexpr T_number & Vector<T_derived, N_dimension, T_number>::operator[](std::size_t aColumn)
 {
     return this->at(aColumn);
 }
 
 
 template <class T_derived, int N_dimension, class T_number>
-T_number Vector<T_derived, N_dimension, T_number>::operator[](std::size_t aColumn) const
+constexpr T_number Vector<T_derived, N_dimension, T_number>::operator[](std::size_t aColumn) const
 {
     return this->at(aColumn);
 }
 
 
 template <class T_derived, int N_dimension, class T_number>
-T_derived & Vector<T_derived, N_dimension, T_number>::operator*=(
-            const Matrix<N_dimension, N_dimension, T_number> &aRhs)
+constexpr T_derived & Vector<T_derived, N_dimension, T_number>::operator*=(
+        const Matrix<N_dimension, N_dimension, T_number> &aRhs)
 {
     (*this) = (*this) * aRhs;
     return *this->derivedThis();
@@ -37,7 +38,7 @@ T_derived & Vector<T_derived, N_dimension, T_number>::operator*=(
 
 
 template <class T_derived, int N_dimension, class T_number>
-T_derived operator*(const Vector<T_derived, N_dimension, T_number> aLhs,
+constexpr T_derived operator*(const Vector<T_derived, N_dimension, T_number> aLhs,
                     const Matrix<N_dimension, N_dimension, T_number> &aRhs)
 {
     return multiplyBase<T_derived>(aLhs, aRhs);
@@ -45,7 +46,7 @@ T_derived operator*(const Vector<T_derived, N_dimension, T_number> aLhs,
 
 
 template <class T_derived, int N_dimension, class T_number>
-T_number Vector<T_derived, N_dimension, T_number>::dot(const Vector &aRhs) const
+constexpr T_number Vector<T_derived, N_dimension, T_number>::dot(const Vector &aRhs) const
 {
     T_number result = 0;
     for(std::size_t col = 0; col != N_dimension; ++col)
@@ -56,12 +57,14 @@ T_number Vector<T_derived, N_dimension, T_number>::dot(const Vector &aRhs) const
 }
 
 template <class T_derived, int N_dimension, class T_number>
-T_number Vector<T_derived, N_dimension, T_number>::getNormSquared() const
+constexpr T_number Vector<T_derived, N_dimension, T_number>::getNormSquared() const
 {
     T_number accumulator = 0;
     for(std::size_t col = 0; col != N_dimension; ++col)
     {
-        accumulator += std::pow((*this)[col], 2);
+        // std::pow is not constexpr
+        //accumulator += std::pow((*this)[col], 2);
+        accumulator += (*this)[col] * (*this)[col];
     }
     return accumulator;
 }

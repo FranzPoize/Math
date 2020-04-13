@@ -5,8 +5,10 @@
 #include <array>
 #include <iostream>
 
+
 namespace ad {
 namespace math {
+
 
 #define TMP class T_derived, int N_rows, int N_cols, class T_number
 #define TMA T_derived, N_rows, N_cols, T_number
@@ -16,11 +18,13 @@ namespace math {
 
 namespace detail {
 
+
 class CastTag
 {
     template <TMP>
     friend class MatrixBase;
 };
+
 
 } // namespace detail
 
@@ -28,7 +32,8 @@ class CastTag
 template <TMP>
 class MatrixBase
 {
-    typedef std::array<T_number, N_rows*N_cols> store_type;
+    static constexpr int size_value = N_rows*N_cols;
+    typedef std::array<T_number, size_value> store_type;
 
 public:
     typedef typename store_type::value_type value_type; // i.e. T_number
@@ -42,14 +47,18 @@ private:
     {
         friend class MatrixBase;
 
-        Row(T_number *aRow) :
-                mRow(aRow)
+        constexpr explicit Row(T_number *aRow) noexcept:
+            mRow(aRow)
         {}
 
-        Row(const Row&) = default;
+        // Only allow move-construction, required to return from Matrix::operator[]
+        constexpr Row(Row &&) noexcept = default;
+        Row & operator=(Row &&) = delete;
+        Row(const Row &) = delete;
+        Row & operator=(const Row &) = delete;
 
     public:
-        T_number &operator[](std::size_t aColumn)
+        constexpr T_number & operator[](std::size_t aColumn)
         { return mRow[aColumn]; }
 
     private:
@@ -60,27 +69,42 @@ private:
     {
         friend class MatrixBase;
 
-        const_Row(const T_number *aRow) :
-                mRow(aRow)
+        constexpr explicit const_Row(const T_number *aRow) noexcept:
+            mRow(aRow)
         {}
 
-        const_Row(const const_Row&) = default;
+        // Only allow move-construction, required to return from Matrix::operator[]
+        constexpr const_Row(const_Row &&) noexcept = default;
+        const_Row & operator=(const_Row &&) = delete;
+        const_Row(const const_Row &) = delete;
+        const_Row & operator=(const const_Row &) = delete;
 
     public:
-        T_number operator[](std::size_t aColumn)
+        constexpr T_number operator[](std::size_t aColumn)
         { return mRow[aColumn]; }
 
     private:
         const T_number *mRow;
     };
 
+protected:
+    // Implementer note:
+    // This is definitely too conservative, but I don't feel confident in my understanding of
+    // noexcept at the moment. (And this class is intended for arithmetic types)
+    // Also, this should probably be different depending on the member function.
+    static constexpr bool should_noexcept = std::is_arithmetic<value_type>::value;
+
 public:
     /// \note: std::array does not have a std::initializer_list constructor, but aggregate initialization.
     /// \note: enable_if to only allow this ctor when the right number of arguments is provided
     ///        (notably prevents this constructor from being selected as the default ctor)
+    // Implementer note:
+    // I don't feel confident enought with my understanding of aggregate initialization
+    // (see: https://en.cppreference.com/w/cpp/language/aggregate_initialization)
+    // to know when it can and cannot throw exceptions. So be conservative and noexcept(false).
     template <class... T_element,
               std::enable_if_t<sizeof...(T_element) == N_rows*N_cols, int> = 0>
-    constexpr MatrixBase(T_element... vaElements);
+    constexpr MatrixBase(T_element... vaElements) /*noexcept (see note)*/;
 
     /// \brief Explicit cast to another derived type of same dimensions and scalar type
     template <class T_otherDerived,
@@ -90,7 +114,7 @@ public:
                                                                   T_number>,
                                                        T_otherDerived>::value,
                                        T_otherDerived>>
-    explicit operator T_otherDerived () const;
+    constexpr explicit operator T_otherDerived () const noexcept(should_noexcept);
 
     /// Not possible, that leads to a duplicate conversion operator error
     ///// \brief Explicit cast to the same derived type, except with a different value_type
@@ -103,6 +127,7 @@ public:
     // see: https://en.cppreference.com/w/cpp/language/copy_constructor
     /// \brief Explicit cast to a different value_type, with matching dimensions,
     ///        wether or not the derived type is the same
+    /// \attention Can only be used in a constexpr context since C++20
     template <class T_otherDerived, class T_otherNumber,
               // Disable it if the value_type is the same, in which case the explicit conversion
               // operator could have better performance
@@ -110,79 +135,91 @@ public:
     constexpr explicit MatrixBase(const MatrixBase<T_otherDerived,
                                                    N_rows,
                                                    N_cols,
-                                                   T_otherNumber> & aOther);
-
+                                                   T_otherNumber> & aOther)
+    noexcept(should_noexcept);
 
     /// \brief Sets all elements to zero
-    T_derived & setZero();
+    constexpr T_derived & setZero() noexcept(should_noexcept);
 
     /// \brief Returns a Matrix with all elements set to 0.
-    static T_derived Zero();
+    static constexpr T_derived Zero() noexcept(should_noexcept);
 
 
-    Row operator[](std::size_t aRow);
-    const_Row operator[](std::size_t aRow) const;
+    constexpr Row operator[](std::size_t aRow);
+    constexpr const_Row operator[](std::size_t aRow) const;
+
 
     // Iterate one line at a time, going through each column in the line
     // before descending to the next line
-    const_iterator cbegin() const;
-    const_iterator cend() const;
+    constexpr const_iterator cbegin() const noexcept;
+    constexpr const_iterator cend() const noexcept;
     // Also implemented to enable range for loop
-    const_iterator begin() const;
-    const_iterator end() const;
+    constexpr const_iterator begin() const noexcept;
+    constexpr const_iterator end() const noexcept;
 
-    T_number & at(std::size_t aIndex);
-    T_number & at(std::size_t aRow, std::size_t aColumn);
-    T_number at(std::size_t aIndex) const;
-    T_number at(std::size_t aRow, std::size_t aColumn) const;
+    constexpr T_number & at(std::size_t aIndex);
+    constexpr T_number & at(std::size_t aRow, std::size_t aColumn);
+    constexpr T_number at(std::size_t aIndex) const;
+    constexpr T_number at(std::size_t aRow, std::size_t aColumn) const;
 
-    const T_number * data() const;
+    constexpr const T_number * data() const noexcept;
 
 
     // Allows for compound addition of other derived types, depending on the derived traits
     template <class T_derivedRight>
-    additive_t<T_derived, T_derivedRight> & operator+=(const MatrixBase<TMA_RIGHT> &aRhs);
+    constexpr additive_t<T_derived, T_derivedRight> &
+    operator+=(const MatrixBase<TMA_RIGHT> &aRhs) noexcept(should_noexcept);
     template <class T_derivedRight>
-    additive_t<T_derived, T_derivedRight> & operator-=(const MatrixBase<TMA_RIGHT> &aRhs);
+    constexpr additive_t<T_derived, T_derivedRight> &
+    operator-=(const MatrixBase<TMA_RIGHT> &aRhs) noexcept(should_noexcept);
 
-    T_derived & operator*=(T_number aScalar);
-    T_derived & operator/=(T_number aScalar);
+    constexpr T_derived & operator*=(T_number aScalar) noexcept(should_noexcept);
+    constexpr T_derived & operator/=(T_number aScalar) noexcept(should_noexcept);
 
-    T_derived operator-() const;
+    constexpr T_derived operator-() const noexcept(should_noexcept);
 
     /// \brief The compound componentwise multiplication
-    T_derived & cwMulAssign(const MatrixBase &aRhs);
+    constexpr T_derived & cwMulAssign(const MatrixBase &aRhs) noexcept(should_noexcept);
     /// \brief The componentwise multiplication
     /// \note Made a member function for the syntax with the 'operator name' in between operands
-    T_derived cwMul(T_derived aRhs) const;
+    constexpr T_derived cwMul(T_derived aRhs) const noexcept(should_noexcept);
 
     /// \brief The compound componentwise division
-    T_derived & cwDivAssign(const MatrixBase &aRhs);
+    constexpr T_derived & cwDivAssign(const MatrixBase &aRhs) noexcept(should_noexcept);
     /// \brief The componentwise division
-    T_derived cwDiv(const T_derived &aRhs) const;
+    constexpr T_derived cwDiv(const T_derived &aRhs) const noexcept(should_noexcept);
 
-    bool operator==(const MatrixBase &aRhs) const;
-    bool operator!=(const MatrixBase &aRhs) const;
+    /// \attention Can only be used in a constexpr context since C++20
+    constexpr bool operator==(const MatrixBase &aRhs) const noexcept(should_noexcept);
+    /// \attention Can only be used in a constexpr context since C++20
+    constexpr bool operator!=(const MatrixBase &aRhs) const noexcept(should_noexcept);
 
 protected:
-    T_derived * derivedThis();
-    const T_derived * derivedThis() const;
+    constexpr T_derived * derivedThis() noexcept;
+    constexpr const T_derived * derivedThis() const noexcept;
 
 protected:
     /// \note The default default-ctor would return unitialized memory.
     /// This is usefull in implementation details, but we make it more explicit with a ctor taking a tag
     MatrixBase() = delete;
 
-    struct UninitializedTag{};
+    struct UninitializedTag {};
 
+    // Implementer note: defaulted operations seems to deduce constexpr (and hopefully noexcept)
     MatrixBase(const MatrixBase &aRhs) = default;
     MatrixBase & operator=(const MatrixBase &aRhs) = default;
 
+    // NOTE: std::array is movable if its elements are, i.e. it will move each of them
+    // see: https://stackoverflow.com/a/14370753/1027706
+    MatrixBase(MatrixBase && aRhs) = default;
+    MatrixBase & operator=(MatrixBase && aRhs) = default;
+
 public:
     /// \brief Like a default constructor, but inaccessible to the client code thanks to the protected tag.
-    MatrixBase(UninitializedTag);
+    constexpr MatrixBase(UninitializedTag) noexcept(should_noexcept);
 
-    MatrixBase(detail::CastTag, store_type aData);
+    constexpr MatrixBase(detail::CastTag, store_type aData)
+            noexcept(std::is_nothrow_move_constructible<value_type>::value);
 
 private:
     store_type mStore;
@@ -191,27 +228,38 @@ private:
 /*
  * Free function arithmetic operators
  */
-// Implementer's note:
+// Implementer note:
 //   Was simple and elegant, matching the T_derived in the first argument (by value to be modified)
 //   with the T_derived in the MatrixBase
 //   Yet it only allowed addition for matching derived types (and could not disable it)
 //template <TMP>
 //T_derived operator+(T_derived aLhs, const MatrixBase<TMA> &aRhs);
 
-template <TMP, class T_derivedRight>
-additive_t<T_derived, T_derivedRight> operator+(T_derived aLhs, const MatrixBase<TMA_RIGHT> & aRhs);
+// Implementer note:
+//   should_noexcept should not be part of the API, so it cannot be easily used here
 
 template <TMP, class T_derivedRight>
-additive_t<T_derived, T_derivedRight> operator-(T_derived aLhs, const MatrixBase<TMA_RIGHT> & aRhs);
+constexpr additive_t<T_derived, T_derivedRight>
+operator+(T_derived aLhs, const MatrixBase<TMA_RIGHT> & aRhs)
+/*noexcept(T_derived::should_noexcept)*/;
+
+template <TMP, class T_derivedRight>
+constexpr additive_t<T_derived, T_derivedRight>
+operator-(T_derived aLhs, const MatrixBase<TMA_RIGHT> & aRhs)
+/*noexcept(T_derived::should_noexcept)*/;
 
 template <TMP>
-T_derived operator*(const MatrixBase<TMA> &aLhs, T_number aScalar);
+constexpr T_derived operator*(const MatrixBase<TMA> &aLhs, T_number aScalar)
+/*noexcept(T_derived::should_noexcept)*/;
 
 template <TMP>
-T_derived operator*(T_number aScalar, const MatrixBase<TMA> &aRhs);
+constexpr T_derived operator*(T_number aScalar, const MatrixBase<TMA> &aRhs)
+/*noexcept(T_derived::should_noexcept)*/;
 
 template <TMP>
-T_derived operator/(const MatrixBase<TMA> &aLhs, T_number aScalar);
+constexpr T_derived operator/(const MatrixBase<TMA> &aLhs, T_number aScalar)
+/*noexcept(T_derived::should_noexcept)*/;
+
 
 /*
  * Output operator
@@ -228,4 +276,5 @@ std::ostream & operator<<(std::ostream & os, const MatrixBase<TMA> &aMatrix);
 #undef TMP
 
 
-}} // namespace ad::math
+} // namespace math
+} // namespace ad

@@ -8,7 +8,9 @@ set(${PROJECT_NAME}_HEADERS
 set(${PROJECT_NAME}_SOURCES
     Angle.cpp
     Barycentric.cpp
+    Constexpr_tests.cpp
     Matrix.cpp
+    Noexcept_tests.cpp
     Polynomial.cpp
     Range.cpp
     Rectangle.cpp

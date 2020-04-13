@@ -14,21 +14,24 @@ class Matrix : public MatrixBase<Matrix<N_rows, N_cols, T_number>, N_rows, N_col
 {
     typedef MatrixBase<Matrix<N_rows, N_cols, T_number>, N_rows, N_cols, T_number> base_type;
     using base_type::base_type;
+    using base_type::should_noexcept;
 
 public:
     template<class T>
     using derived_type = Matrix<N_rows, N_cols, T>;
 
-    static Matrix Identity();
+    static constexpr bool is_square_value{N_rows == N_cols};
+
+    static constexpr Matrix Identity() noexcept(should_noexcept);
 
     using base_type::operator*=;
-    Matrix & operator*=(const Matrix & aRhs);
+    constexpr Matrix & operator*=(const Matrix & aRhs) noexcept(should_noexcept);
 };
 
 
 template <class T_result, int N_lRows, int N_lCols, int N_rRows, int N_rCols, class T_lDerived, class T_number>
-T_result multiplyBase(const MatrixBase<T_lDerived, N_lRows, N_lCols, T_number> &aLhs,
-                      const Matrix<N_rRows, N_rCols, T_number> &aRhs)
+constexpr T_result multiplyBase(const MatrixBase<T_lDerived, N_lRows, N_lCols, T_number> &aLhs,
+                                const Matrix<N_rRows, N_rCols, T_number> &aRhs)
 {
     T_result result = T_result::Zero();
     for(std::size_t row = 0; row != N_lRows; ++row)
@@ -49,8 +52,9 @@ T_result multiplyBase(const MatrixBase<T_lDerived, N_lRows, N_lCols, T_number> &
 
 
 template <int N_lRows, int N_lCols, int N_rRows, int N_rCols, class T_number>
-Matrix<N_lRows, N_rCols, T_number> operator*(const Matrix<N_lRows, N_lCols, T_number> &aLhs,
-                                             const Matrix<N_rRows, N_rCols, T_number> &aRhs)
+constexpr Matrix<N_lRows, N_rCols, T_number>
+operator*(const Matrix<N_lRows, N_lCols, T_number> &aLhs,
+          const Matrix<N_rRows, N_rCols, T_number> &aRhs)
 {
     static_assert(N_lCols == N_rRows, "Matrix multiplication dimension mismatch.");
     return multiplyBase<Matrix<N_lRows, N_rCols, T_number>>(aLhs, aRhs);
@@ -58,18 +62,21 @@ Matrix<N_lRows, N_rCols, T_number> operator*(const Matrix<N_lRows, N_lCols, T_nu
 
 
 template <int N_rows, int N_cols, class T_number>
-auto Matrix<N_rows, N_cols, T_number>::operator*=(const Matrix & aRhs) -> Matrix &
+constexpr auto Matrix<N_rows, N_cols, T_number>::operator*=(const Matrix & aRhs)
+noexcept(should_noexcept) -> Matrix &
 {
-    static_assert(N_rows == N_cols, "Matrix multiplication assignment only available for square Matrices");
+    static_assert(is_square_value,
+                  "Matrix multiplication assignment only available for square Matrices");
     *this = *this * aRhs;
     return *this;
 }
 
 
 template <int N_rows, int N_cols, class T_number>
-Matrix<N_rows, N_cols, T_number> Matrix<N_rows, N_cols, T_number>::Identity()
+constexpr Matrix<N_rows, N_cols, T_number> Matrix<N_rows, N_cols, T_number>::Identity()
+noexcept(should_noexcept)
 {
-    static_assert(N_cols == N_rows, "Only square matrices can be identity.");
+    static_assert(is_square_value, "Only square matrices can be identity.");
 
     Matrix result = Matrix::Zero();
     for(std::size_t index = 0; index != N_rows; ++index)
@@ -81,4 +88,3 @@ Matrix<N_rows, N_cols, T_number> Matrix<N_rows, N_cols, T_number>::Identity()
 
 
 }} // namespace ad::math
-

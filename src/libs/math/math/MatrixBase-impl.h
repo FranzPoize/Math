@@ -7,20 +7,22 @@ constexpr MatrixBase<TMA>::MatrixBase(T_element... vaElements) :
 
 
 template<TMP>
-MatrixBase<TMA>::MatrixBase(UninitializedTag)
+constexpr MatrixBase<TMA>::MatrixBase(UninitializedTag) noexcept(should_noexcept) :
+    mStore{}
 {}
 
 
 template<TMP>
-MatrixBase<TMA>::MatrixBase(detail::CastTag, store_type aData) :
-    mStore(aData)
+constexpr MatrixBase<TMA>::MatrixBase(detail::CastTag, store_type aData)
+noexcept(std::is_nothrow_move_constructible<value_type>::value) :
+    mStore{std::move(aData)}
 {}
 
 
 template<TMP>
 template <class T_otherDerived,
           class /* default template argument used to enable_if */>
-MatrixBase<TMA>::operator T_otherDerived () const
+constexpr MatrixBase<TMA>::operator T_otherDerived () const noexcept(should_noexcept)
 {
     T_otherDerived result(detail::CastTag{}, mStore);
     return result;
@@ -34,6 +36,8 @@ constexpr MatrixBase<TMA>::MatrixBase(const MatrixBase<T_otherDerived,
                                                        N_rows,
                                                        N_cols,
                                                        T_otherNumber> & aOther)
+noexcept(should_noexcept) :
+    mStore{}
 {
     // Disable the "possible loss of data" warning because this is an *explicit* ctor
     // only available for explicit conversions
@@ -49,15 +53,25 @@ constexpr MatrixBase<TMA>::MatrixBase(const MatrixBase<T_otherDerived,
 
 
 template<TMP>
-T_derived & MatrixBase<TMA>::setZero()
+constexpr T_derived & MatrixBase<TMA>::setZero() noexcept(should_noexcept)
 {
+#if __cplusplus > 201703L
+    // std::array::fill() is constexpr since C++20
+    // see: https://en.cppreference.com/w/cpp/container/array/fill
     mStore.fill(0);
+#else
+    // Implementer's note: the API only offers const_iterators
+    for(std::size_t id = 0; id != size_value; ++id)
+    {
+        at(id) = 0;
+    }
+#endif
     return *derivedThis();
 }
 
 
 template<TMP>
-T_derived MatrixBase<TMA>::Zero()
+constexpr T_derived MatrixBase<TMA>::Zero() noexcept(should_noexcept)
 {
     T_derived result(UninitializedTag{});
     return result.setZero();
@@ -65,86 +79,86 @@ T_derived MatrixBase<TMA>::Zero()
 
 
 template <TMP>
-typename MatrixBase<TMA>::Row MatrixBase<TMA>::operator[](std::size_t aRow)
+constexpr typename MatrixBase<TMA>::Row MatrixBase<TMA>::operator[](std::size_t aRow)
 {
     return Row{&mStore[aRow*N_cols]};
 }
 
 template <TMP>
-typename MatrixBase<TMA>::const_Row MatrixBase<TMA>::operator[](std::size_t aRow) const
+constexpr typename MatrixBase<TMA>::const_Row MatrixBase<TMA>::operator[](std::size_t aRow) const
 {
     return const_Row{&mStore[aRow*N_cols]};
 }
 
 
 template <TMP>
-typename MatrixBase<TMA>::const_iterator MatrixBase<TMA>::cbegin() const
+constexpr typename MatrixBase<TMA>::const_iterator MatrixBase<TMA>::cbegin() const noexcept
 {
     return mStore.cbegin();
 }
 
 template <TMP>
-typename MatrixBase<TMA>::const_iterator MatrixBase<TMA>::cend() const
+constexpr typename MatrixBase<TMA>::const_iterator MatrixBase<TMA>::cend() const noexcept
 {
     return mStore.cend();
 }
 
 template <TMP>
-typename MatrixBase<TMA>::const_iterator MatrixBase<TMA>::begin() const
+constexpr typename MatrixBase<TMA>::const_iterator MatrixBase<TMA>::begin() const noexcept
 {
     return cbegin();
 }
 
 template <TMP>
-typename MatrixBase<TMA>::const_iterator MatrixBase<TMA>::end() const
+constexpr typename MatrixBase<TMA>::const_iterator MatrixBase<TMA>::end() const noexcept
 {
     return cend();
 }
 
 
 template <TMP>
-T_derived * MatrixBase<TMA>::derivedThis()
+constexpr T_derived * MatrixBase<TMA>::derivedThis() noexcept
 {
     return static_cast<T_derived*>(this);
 }
 
 template <TMP>
-const T_derived * MatrixBase<TMA>::derivedThis() const
+constexpr const T_derived * MatrixBase<TMA>::derivedThis() const noexcept
 {
     return static_cast<const T_derived*>(this);
 }
 
 
 template <TMP>
-T_number & MatrixBase<TMA>::at(std::size_t aIndex)
+constexpr T_number & MatrixBase<TMA>::at(std::size_t aIndex)
 {
     return mStore[aIndex];
 }
 
 
 template <TMP>
-T_number & MatrixBase<TMA>::at(std::size_t aRow, std::size_t aColumn)
+constexpr T_number & MatrixBase<TMA>::at(std::size_t aRow, std::size_t aColumn)
 {
     return mStore[aRow*N_cols + aColumn];
 }
 
 
 template <TMP>
-T_number MatrixBase<TMA>::at(std::size_t aIndex) const
+constexpr T_number MatrixBase<TMA>::at(std::size_t aIndex) const
 {
     return mStore[aIndex];
 }
 
 
 template <TMP>
-T_number MatrixBase<TMA>::at(std::size_t aRow, std::size_t aColumn) const
+constexpr T_number MatrixBase<TMA>::at(std::size_t aRow, std::size_t aColumn) const
 {
     return mStore[aRow*N_cols + aColumn];
 }
 
 
 template <TMP>
-const T_number * MatrixBase<TMA>::data() const
+constexpr const T_number * MatrixBase<TMA>::data() const noexcept
 {
     return mStore.data();
 }
@@ -152,8 +166,8 @@ const T_number * MatrixBase<TMA>::data() const
 
 template <TMP>
 template <class T_derivedRight>
-additive_t<T_derived, T_derivedRight> &
-MatrixBase<TMA>::operator+=(const MatrixBase<TMA_RIGHT> &aRhs)
+constexpr additive_t<T_derived, T_derivedRight> &
+MatrixBase<TMA>::operator+=(const MatrixBase<TMA_RIGHT> &aRhs) noexcept(should_noexcept)
 {
     for(std::size_t elementId = 0; elementId != N_rows*N_cols; ++elementId)
     {
@@ -165,7 +179,8 @@ MatrixBase<TMA>::operator+=(const MatrixBase<TMA_RIGHT> &aRhs)
 
 
 template <TMP, class T_derivedRight>
-additive_t<T_derived, T_derivedRight> operator+(T_derived aLhs, const MatrixBase<TMA_RIGHT> & aRhs)
+constexpr additive_t<T_derived, T_derivedRight>
+operator+(T_derived aLhs, const MatrixBase<TMA_RIGHT> & aRhs)
 {
     aLhs += aRhs;
     return aLhs;
@@ -174,8 +189,8 @@ additive_t<T_derived, T_derivedRight> operator+(T_derived aLhs, const MatrixBase
 
 template <TMP>
 template <class T_derivedRight>
-additive_t<T_derived, T_derivedRight> &
-MatrixBase<TMA>::operator-=(const MatrixBase<TMA_RIGHT> &aRhs)
+constexpr additive_t<T_derived, T_derivedRight> &
+MatrixBase<TMA>::operator-=(const MatrixBase<TMA_RIGHT> &aRhs) noexcept(should_noexcept)
 {
     for(std::size_t elementId = 0; elementId != N_rows*N_cols; ++elementId)
     {
@@ -187,7 +202,8 @@ MatrixBase<TMA>::operator-=(const MatrixBase<TMA_RIGHT> &aRhs)
 
 
 template <TMP, class T_derivedRight>
-additive_t<T_derived, T_derivedRight> operator-(T_derived aLhs, const MatrixBase<TMA_RIGHT> & aRhs)
+constexpr additive_t<T_derived, T_derivedRight>
+operator-(T_derived aLhs, const MatrixBase<TMA_RIGHT> & aRhs)
 {
     aLhs -= aRhs;
     return aLhs;
@@ -195,7 +211,7 @@ additive_t<T_derived, T_derivedRight> operator-(T_derived aLhs, const MatrixBase
 
 
 template <TMP>
-T_derived & MatrixBase<TMA>::operator *=(T_number aScalar)
+constexpr T_derived & MatrixBase<TMA>::operator *=(T_number aScalar) noexcept(should_noexcept)
 {
     for(std::size_t elementId = 0; elementId != N_rows*N_cols; ++elementId)
     {
@@ -206,7 +222,7 @@ T_derived & MatrixBase<TMA>::operator *=(T_number aScalar)
 
 
 template <TMP>
-T_derived operator*(T_number aScalar, const MatrixBase<TMA> &aRhs)
+constexpr T_derived operator*(T_number aScalar, const MatrixBase<TMA> &aRhs)
 {
     T_derived copy(static_cast<const T_derived &>(aRhs));
     copy *= aScalar;
@@ -215,14 +231,14 @@ T_derived operator*(T_number aScalar, const MatrixBase<TMA> &aRhs)
 
 
 template <TMP>
-T_derived operator*(const MatrixBase<TMA> &aLhs, T_number aScalar)
+constexpr T_derived operator*(const MatrixBase<TMA> &aLhs, T_number aScalar)
 {
     return aScalar * aLhs;
 }
 
 
 template <TMP>
-T_derived & MatrixBase<TMA>::operator /=(T_number aScalar)
+constexpr T_derived & MatrixBase<TMA>::operator /=(T_number aScalar) noexcept(should_noexcept)
 {
     for(std::size_t elementId = 0; elementId != N_rows*N_cols; ++elementId)
     {
@@ -233,7 +249,7 @@ T_derived & MatrixBase<TMA>::operator /=(T_number aScalar)
 
 
 template <TMP>
-T_derived operator/(const MatrixBase<TMA> &aLhs, T_number aScalar)
+constexpr T_derived operator/(const MatrixBase<TMA> &aLhs, T_number aScalar)
 {
     T_derived copy(static_cast<const T_derived &>(aLhs));
     copy /= aScalar;
@@ -242,16 +258,16 @@ T_derived operator/(const MatrixBase<TMA> &aLhs, T_number aScalar)
 
 
 template <TMP>
-T_derived MatrixBase<TMA>::operator-() const
+constexpr T_derived MatrixBase<TMA>::operator-() const noexcept(should_noexcept)
 {
-    T_derived copy(static_cast<const T_derived &>(*this));
+    T_derived copy(*derivedThis());
     copy *= -1;
     return copy;
 }
 
 
 template <TMP>
-T_derived & MatrixBase<TMA>::cwMulAssign(const MatrixBase &aRhs)
+constexpr T_derived & MatrixBase<TMA>::cwMulAssign(const MatrixBase &aRhs) noexcept(should_noexcept)
 {
     for(std::size_t elementId = 0; elementId != N_rows*N_cols; ++elementId)
     {
@@ -262,14 +278,14 @@ T_derived & MatrixBase<TMA>::cwMulAssign(const MatrixBase &aRhs)
 
 
 template <TMP>
-T_derived MatrixBase<TMA>::cwMul(T_derived aRhs) const
+constexpr T_derived MatrixBase<TMA>::cwMul(T_derived aRhs) const noexcept(should_noexcept)
 {
     return aRhs.cwMulAssign(*this);
 }
 
 
 template <TMP>
-T_derived & MatrixBase<TMA>::cwDivAssign(const MatrixBase &aRhs)
+constexpr T_derived & MatrixBase<TMA>::cwDivAssign(const MatrixBase &aRhs) noexcept(should_noexcept)
 {
     for(std::size_t elementId = 0; elementId != N_rows*N_cols; ++elementId)
     {
@@ -280,21 +296,21 @@ T_derived & MatrixBase<TMA>::cwDivAssign(const MatrixBase &aRhs)
 
 
 template <TMP>
-T_derived MatrixBase<TMA>::cwDiv(const T_derived &aRhs) const
+constexpr T_derived MatrixBase<TMA>::cwDiv(const T_derived &aRhs) const noexcept(should_noexcept)
 {
-    T_derived left(*this);
+    T_derived left(*derivedThis()); // Avoid conversion op by using *derivedThis instead of *this
     return left.cwDivAssign(aRhs);
 }
 
 
 template <TMP>
-bool MatrixBase<TMA>::operator==(const MatrixBase &aRhs) const
+constexpr bool MatrixBase<TMA>::operator==(const MatrixBase &aRhs) const noexcept(should_noexcept)
 {
     return mStore == aRhs.mStore;
 }
 
 template<TMP>
-bool MatrixBase<TMA>::operator!=(const MatrixBase &aRhs) const
+constexpr bool MatrixBase<TMA>::operator!=(const MatrixBase &aRhs) const noexcept(should_noexcept)
 {
     return !(*this == aRhs);
 }

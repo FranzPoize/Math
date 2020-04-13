@@ -153,6 +153,13 @@ SCENARIO("Basic operations are available on Matrix instances")
                 3., 4.,   -2.,
             };
 
+            THEN("First matrix can be assigned to the second")
+            {
+                REQUIRE_FALSE(std::equal(matrix.begin(), matrix.end(), second.begin()));
+                second = matrix;
+                REQUIRE(std::equal(matrix.begin(), matrix.end(), second.begin()));
+            }
+
             THEN("They can be multiplied together.")
             {
                 Matrix<3, 3> expectedResult = {
