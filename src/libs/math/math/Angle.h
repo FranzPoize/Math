@@ -37,6 +37,8 @@ class Angle
     template <class> struct type{};
 
 public:
+    Angle() = default;
+
     explicit Angle(T_representation aValue) :
         mValue{aValue}
     {}
@@ -59,7 +61,7 @@ public:
     Angle & operator/=(const T_factor aFactor);
 
 private:
-    T_representation mValue;
+    T_representation mValue{0};
 };
 
 
@@ -177,38 +179,43 @@ ANGLE operator/(ANGLE aLhs, const T_factor aFactor)
 //
 // User-defined literals
 //
-Radian<double> operator"" _rad(long double aValue)
-{ return Radian<double>(aValue); }
+namespace angle_literals
+{
 
-Radian<float> operator"" _radf(long double aValue)
-{ return Radian<float>(static_cast<float>(aValue)); }
-Radian<float> operator"" _radF(long double aValue)
-{ return operator"" _radf(aValue); }
+    inline Radian<double> operator"" _rad(long double aValue)
+    { return Radian<double>(aValue); }
 
-Radian<long double> operator"" _radl(long double aValue)
-{ return Radian<long double>(aValue); }
-Radian<long double> operator"" _radL(long double aValue)
-{ return operator"" _radl(aValue); }
+    inline Radian<float> operator"" _radf(long double aValue)
+    { return Radian<float>(static_cast<float>(aValue)); }
+    inline Radian<float> operator"" _radF(long double aValue)
+    { return operator"" _radf(aValue); }
 
-Radian<int> operator"" _rad(unsigned long long aValue)
-{ return Radian<int>(static_cast<int>(aValue)); }
+    inline Radian<long double> operator"" _radl(long double aValue)
+    { return Radian<long double>(aValue); }
+    inline Radian<long double> operator"" _radL(long double aValue)
+    { return operator"" _radl(aValue); }
+
+    inline Radian<int> operator"" _rad(unsigned long long aValue)
+    { return Radian<int>(static_cast<int>(aValue)); }
 
 
-Degree<double> operator"" _deg(long double aValue)
-{ return Degree<double>(aValue); }
+    inline Degree<double> operator"" _deg(long double aValue)
+    { return Degree<double>(aValue); }
 
-Degree<float> operator"" _degf(long double aValue)
-{ return Degree<float>(static_cast<float>(aValue)); }
-Degree<float> operator"" _degF(long double aValue)
-{ return operator"" _degf(aValue); }
+    inline Degree<float> operator"" _degf(long double aValue)
+    { return Degree<float>(static_cast<float>(aValue)); }
+    inline Degree<float> operator"" _degF(long double aValue)
+    { return operator"" _degf(aValue); }
 
-Degree<long double> operator"" _degl(long double aValue)
-{ return Degree<long double>(aValue); }
-Degree<long double> operator"" _degL(long double aValue)
-{ return operator"" _degl(aValue); }
+    inline Degree<long double> operator"" _degl(long double aValue)
+    { return Degree<long double>(aValue); }
+    inline Degree<long double> operator"" _degL(long double aValue)
+    { return operator"" _degl(aValue); }
 
-Degree<int> operator"" _deg(unsigned long long aValue)
-{ return Degree<int>(static_cast<int>(aValue)); }
+    inline Degree<int> operator"" _deg(unsigned long long aValue)
+    { return Degree<int>(static_cast<int>(aValue)); }
+
+} // namespace angle_literals
 
 
 //

@@ -6,9 +6,20 @@
 #include <iostream>
 
 using namespace ad::math;
+using namespace ad::math::angle_literals;
 
 SCENARIO("Angles operations")
 {
+    GIVEN("A default constructed angle")
+    {
+        Radian<double> def;
+
+        THEN("It is a null angle")
+        {
+            REQUIRE(def.value() == 0);
+        }
+    }
+
     GIVEN("An angle")
     {
         double value = 2*pi<double>;
