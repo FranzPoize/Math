@@ -37,28 +37,28 @@ class Angle
     template <class> struct type{};
 
 public:
-    Angle() = default;
+    constexpr Angle() noexcept= default;
 
-    explicit Angle(T_representation aValue) :
+    explicit constexpr Angle(T_representation aValue) noexcept :
         mValue{aValue}
     {}
 
-    /*implicit*/ operator Angle<T_representation, Radian_tag> () const;
+    /*implicit*/ constexpr operator Angle<T_representation, Radian_tag>() const;
 
     template <template <class> class TT_angle>
-    TT_angle<T_representation> as() const;
+    constexpr TT_angle<T_representation> as() const;
 
-    T_representation value() const
+    constexpr T_representation value() const
     {
         return mValue;
     }
 
-    Angle & operator+=(const Angle aRhs);
-    Angle & operator-=(const Angle aRhs);
+    constexpr Angle & operator+=(const Angle aRhs);
+    constexpr Angle & operator-=(const Angle aRhs);
     template <class T_factor>
-    Angle & operator*=(const T_factor aFactor);
+    constexpr Angle & operator*=(const T_factor aFactor);
     template <class T_factor>
-    Angle & operator/=(const T_factor aFactor);
+    constexpr Angle & operator/=(const T_factor aFactor);
 
 private:
     T_representation mValue{0};
@@ -71,103 +71,103 @@ private:
 #define ANGLE Angle<T_representation, T_unitTag>
 
 template <class T_representation, class T_unitTag>
-bool operator==(const ANGLE aLhs, const ANGLE aRhs)
+constexpr bool operator==(const ANGLE aLhs, const ANGLE aRhs)
 {
     return aLhs.value() == aRhs.value();
 }
 
 template <class T_representation, class T_unitTag>
-bool operator!=(const ANGLE aLhs, const ANGLE aRhs)
+constexpr bool operator!=(const ANGLE aLhs, const ANGLE aRhs)
 {
     return !(aLhs == aRhs);
 }
 
 template <class T_representation, class T_unitTag>
-bool operator<(const ANGLE aLhs, const ANGLE aRhs)
+constexpr bool operator<(const ANGLE aLhs, const ANGLE aRhs)
 {
     return aLhs.value() < aRhs.value();
 }
 
 template <class T_representation, class T_unitTag>
-bool operator>(const ANGLE aLhs, const ANGLE aRhs)
+constexpr bool operator>(const ANGLE aLhs, const ANGLE aRhs)
 {
     return aLhs.value() > aRhs.value();
 }
 
 template <class T_representation, class T_unitTag>
-bool operator<=(const ANGLE aLhs, const ANGLE aRhs)
+constexpr bool operator<=(const ANGLE aLhs, const ANGLE aRhs)
 {
     return aLhs.value() <= aRhs.value();
 }
 
 template <class T_representation, class T_unitTag>
-bool operator>=(const ANGLE aLhs, const ANGLE aRhs)
+constexpr bool operator>=(const ANGLE aLhs, const ANGLE aRhs)
 {
     return aLhs.value() >= aRhs.value();
 }
 
 template <class T_representation, class T_unitTag>
-ANGLE operator-(const ANGLE aAngle)
+constexpr ANGLE operator-(const ANGLE aAngle)
 {
     return ANGLE{-aAngle.value()};
 }
 
 template <class T_representation, class T_unitTag>
-ANGLE & ANGLE::operator+=(const Angle aRhs)
+constexpr ANGLE & ANGLE::operator+=(const Angle aRhs)
 {
     mValue += aRhs.mValue;
     return *this;
 }
 
 template <class T_representation, class T_unitTag>
-ANGLE operator+(ANGLE aLhs, const ANGLE aRhs)
+constexpr ANGLE operator+(ANGLE aLhs, const ANGLE aRhs)
 {
     return aLhs += aRhs;
 }
 
 template <class T_representation, class T_unitTag>
-ANGLE & ANGLE::operator-=(const Angle aRhs)
+constexpr ANGLE & ANGLE::operator-=(const Angle aRhs)
 {
     mValue -= aRhs.mValue;
     return *this;
 }
 
 template <class T_representation, class T_unitTag>
-ANGLE operator-(ANGLE aLhs, const ANGLE aRhs)
+constexpr ANGLE operator-(ANGLE aLhs, const ANGLE aRhs)
 {
     return aLhs -= aRhs;
 }
 
 template <class T_representation, class T_unitTag>
 template <class T_factor>
-ANGLE & ANGLE::operator*=(const T_factor aFactor)
+constexpr ANGLE & ANGLE::operator*=(const T_factor aFactor)
 {
     mValue *= aFactor;
     return *this;
 }
 
 template <class T_representation, class T_unitTag, class T_factor>
-ANGLE operator*(ANGLE aLhs, const T_factor aFactor)
+constexpr ANGLE operator*(ANGLE aLhs, const T_factor aFactor)
 {
     return aLhs *= aFactor;
 }
 
 template <class T_representation, class T_unitTag, class T_factor>
-ANGLE operator*(const T_factor aFactor, ANGLE aRhs)
+constexpr ANGLE operator*(const T_factor aFactor, ANGLE aRhs)
 {
     return aRhs *= aFactor;
 }
 
 template <class T_representation, class T_unitTag>
 template <class T_factor>
-ANGLE & ANGLE::operator/=(const T_factor aFactor)
+constexpr ANGLE & ANGLE::operator/=(const T_factor aFactor)
 {
     mValue /= aFactor;
     return *this;
 }
 
 template <class T_representation, class T_unitTag, class T_factor>
-ANGLE operator/(ANGLE aLhs, const T_factor aFactor)
+constexpr ANGLE operator/(ANGLE aLhs, const T_factor aFactor)
 {
     return aLhs /= aFactor;
 }
@@ -259,14 +259,14 @@ std::ostream & operator<<(std::ostream & aOs, Angle<T_representation, T_unitTag>
 // Implementation
 //
 template <class T_representation, class T_unitTag>
-Angle<T_representation, T_unitTag>::operator Angle<T_representation, Radian_tag> () const
+constexpr Angle<T_representation, T_unitTag>::operator Angle<T_representation, Radian_tag> () const
 {
     return this->as<Radian>();
 }
 
 template <class T_representation, class T_unitTag>
 template <template <class> class TT_angle>
-TT_angle<T_representation> Angle<T_representation, T_unitTag>::as() const
+constexpr TT_angle<T_representation> Angle<T_representation, T_unitTag>::as() const
 {
     // Note: allows narrowing
     return TT_angle<T_representation>(static_cast<T_representation>(
