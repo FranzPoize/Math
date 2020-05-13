@@ -125,13 +125,17 @@ public:
 
     // NOTE: This is not a copy constructor because it is templated
     // see: https://en.cppreference.com/w/cpp/language/copy_constructor
+    // NOTE: Disabled if the value_type is the same, in which case the explicit conversion
+    // operator could have better performance
+    // NOTE: std::is_convertible is not the exact requirement here, but were are not aware
+    // of a better alternative in the type support library
+    // (std::is_assignable not working for int and double, for example)
     /// \brief Explicit cast to a different value_type, with matching dimensions,
     ///        wether or not the derived type is the same
     /// \attention Can only be used in a constexpr context since C++20
     template <class T_otherDerived, class T_otherNumber,
-              // Disable it if the value_type is the same, in which case the explicit conversion
-              // operator could have better performance
-              class = std::enable_if_t<! std::is_same<T_number, T_otherNumber>::value>>
+              class = std::enable_if_t<   (! std::is_same<T_number, T_otherNumber>::value)
+                                       && (std::is_convertible<T_otherNumber, T_number>::value)>>
     constexpr explicit MatrixBase(const MatrixBase<T_otherDerived,
                                                    N_rows,
                                                    N_cols,
