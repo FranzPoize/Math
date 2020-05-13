@@ -40,4 +40,20 @@ template <class T_derivedLeft, class T_derivedRight>
 using additive_t = std::enable_if_t<addition_trait<T_derivedLeft, T_derivedRight>::value,
                                     T_derivedLeft>;
 
+
+//
+// Types segmentation (detecting if a type derives from MatrixBase, etc.)
+//
+
+/// \brief Defines a static constexpr boolean `value`, true if T is considered a matrix type
+/// false otherwise
+///
+/// \note Implemented in MatrixBase.h
+template <class T>
+class from_matrix;
+
+template <class T>
+inline constexpr bool from_matrix_v = from_matrix<T>::value;
+
+
 }} // namespace ad::math

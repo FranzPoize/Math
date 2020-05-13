@@ -173,8 +173,12 @@ public:
     constexpr additive_t<T_derived, T_derivedRight> &
     operator-=(const MatrixBase<TMA_RIGHT> &aRhs) noexcept(should_noexcept);
 
-    constexpr T_derived & operator*=(T_number aScalar) noexcept(should_noexcept);
-    constexpr T_derived & operator/=(T_number aScalar) noexcept(should_noexcept);
+    template <class T_scalar>
+    constexpr std::enable_if_t<! from_matrix_v<T_scalar>, T_derived &>
+    operator*=(T_scalar aScalar) noexcept(should_noexcept);
+    template <class T_scalar>
+    constexpr std::enable_if_t<! from_matrix_v<T_scalar>, T_derived &>
+    operator/=(T_scalar aScalar) noexcept(should_noexcept);
 
     constexpr T_derived operator-() const noexcept(should_noexcept);
 
@@ -248,16 +252,19 @@ constexpr additive_t<T_derived, T_derivedRight>
 operator-(T_derived aLhs, const MatrixBase<TMA_RIGHT> & aRhs)
 /*noexcept(T_derived::should_noexcept)*/;
 
-template <TMP>
-constexpr T_derived operator*(const MatrixBase<TMA> &aLhs, T_number aScalar)
+template <TMP, class T_scalar>
+constexpr std::enable_if_t<! from_matrix_v<T_scalar>, T_derived>
+operator*(const MatrixBase<TMA> &aLhs, T_scalar aScalar)
 /*noexcept(T_derived::should_noexcept)*/;
 
-template <TMP>
-constexpr T_derived operator*(T_number aScalar, const MatrixBase<TMA> &aRhs)
+template <TMP, class T_scalar>
+constexpr std::enable_if_t<! from_matrix_v<T_scalar>, T_derived>
+operator*(T_scalar aScalar, const MatrixBase<TMA> &aRhs)
 /*noexcept(T_derived::should_noexcept)*/;
 
-template <TMP>
-constexpr T_derived operator/(const MatrixBase<TMA> &aLhs, T_number aScalar)
+template <TMP, class T_scalar>
+constexpr std::enable_if_t<! from_matrix_v<T_scalar>, T_derived>
+operator/(const MatrixBase<TMA> &aLhs, T_scalar aScalar)
 /*noexcept(T_derived::should_noexcept)*/;
 
 
@@ -274,6 +281,19 @@ std::ostream & operator<<(std::ostream & os, const MatrixBase<TMA> &aMatrix);
 #undef TMA_RIGHT
 #undef TMA
 #undef TMP
+
+
+namespace detail {
+    std::false_type test_matrix_convertible(...);
+
+    template <class T_derived, int N_rows, int N_cols, class T_number>
+    std::true_type test_matrix_convertible(const MatrixBase<T_derived, N_rows, N_cols, T_number> &);
+} // namespace detail
+
+
+template <class T>
+class from_matrix : public decltype(detail::test_matrix_convertible(std::declval<T>()))
+{};
 
 
 } // namespace math

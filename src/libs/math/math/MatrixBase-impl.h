@@ -58,12 +58,12 @@ constexpr T_derived & MatrixBase<TMA>::setZero() noexcept(should_noexcept)
 #if __cplusplus > 201703L
     // std::array::fill() is constexpr since C++20
     // see: https://en.cppreference.com/w/cpp/container/array/fill
-    mStore.fill(0);
+    mStore.fill(value_type{0});
 #else
     // Implementer's note: the API only offers const_iterators
     for(std::size_t id = 0; id != size_value; ++id)
     {
-        at(id) = 0;
+        at(id) = value_type{0};
     }
 #endif
     return *derivedThis();
@@ -211,7 +211,9 @@ operator-(T_derived aLhs, const MatrixBase<TMA_RIGHT> & aRhs)
 
 
 template <TMP>
-constexpr T_derived & MatrixBase<TMA>::operator *=(T_number aScalar) noexcept(should_noexcept)
+template <class T_scalar>
+constexpr std::enable_if_t<! from_matrix_v<T_scalar>, T_derived &>
+MatrixBase<TMA>::operator*=(T_scalar aScalar) noexcept(should_noexcept)
 {
     for(std::size_t elementId = 0; elementId != N_rows*N_cols; ++elementId)
     {
@@ -221,8 +223,9 @@ constexpr T_derived & MatrixBase<TMA>::operator *=(T_number aScalar) noexcept(sh
 }
 
 
-template <TMP>
-constexpr T_derived operator*(T_number aScalar, const MatrixBase<TMA> &aRhs)
+template <TMP, class T_scalar>
+constexpr std::enable_if_t<! from_matrix_v<T_scalar>, T_derived>
+operator*(T_scalar aScalar, const MatrixBase<TMA> &aRhs)
 {
     T_derived copy(static_cast<const T_derived &>(aRhs));
     copy *= aScalar;
@@ -230,15 +233,18 @@ constexpr T_derived operator*(T_number aScalar, const MatrixBase<TMA> &aRhs)
 }
 
 
-template <TMP>
-constexpr T_derived operator*(const MatrixBase<TMA> &aLhs, T_number aScalar)
+template <TMP, class T_scalar>
+constexpr std::enable_if_t<! from_matrix_v<T_scalar>, T_derived>
+operator*(const MatrixBase<TMA> &aLhs, T_scalar aScalar)
 {
     return aScalar * aLhs;
 }
 
 
 template <TMP>
-constexpr T_derived & MatrixBase<TMA>::operator /=(T_number aScalar) noexcept(should_noexcept)
+template <class T_scalar>
+constexpr std::enable_if_t<! from_matrix_v<T_scalar>, T_derived &>
+MatrixBase<TMA>::operator/=(T_scalar aScalar) noexcept(should_noexcept)
 {
     for(std::size_t elementId = 0; elementId != N_rows*N_cols; ++elementId)
     {
@@ -248,8 +254,9 @@ constexpr T_derived & MatrixBase<TMA>::operator /=(T_number aScalar) noexcept(sh
 }
 
 
-template <TMP>
-constexpr T_derived operator/(const MatrixBase<TMA> &aLhs, T_number aScalar)
+template <TMP, class T_scalar>
+constexpr std::enable_if_t<! from_matrix_v<T_scalar>, T_derived>
+operator/(const MatrixBase<TMA> &aLhs, T_scalar aScalar)
 {
     T_derived copy(static_cast<const T_derived &>(aLhs));
     copy /= aScalar;

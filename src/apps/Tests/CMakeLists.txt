@@ -14,7 +14,9 @@ set(${PROJECT_NAME}_SOURCES
     Polynomial.cpp
     Range.cpp
     Rectangle.cpp
+    Traits.cpp
     Vector.cpp
+    VectorOfAngle.cpp
 )
 
 add_executable(${PROJECT_NAME}
