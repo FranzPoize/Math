@@ -24,6 +24,8 @@ public:
 
     static constexpr Matrix Identity() noexcept(should_noexcept);
 
+    constexpr Matrix<N_cols, N_rows, T_number> transpose() const noexcept(should_noexcept);
+
     using base_type::operator*=;
     constexpr Matrix & operator*=(const Matrix & aRhs) noexcept(should_noexcept);
 };
@@ -82,6 +84,23 @@ noexcept(should_noexcept)
     for(std::size_t index = 0; index != N_rows; ++index)
     {
         result[index][index] = 1;
+    }
+    return result;
+}
+
+
+template <int N_rows, int N_cols, class T_number>
+constexpr Matrix<N_cols, N_rows, T_number>
+Matrix<N_rows, N_cols, T_number>::transpose() const noexcept(should_noexcept)
+{
+    using result_type = Matrix<N_cols, N_rows, T_number>;
+    result_type result{typename result_type::UninitializedTag{}};
+    for(std::size_t sourceRow = 0; sourceRow != N_rows; ++sourceRow)
+    {
+        for(std::size_t sourceCol = 0; sourceCol != N_cols; ++sourceCol)
+        {
+            result[sourceCol][sourceRow] = (*this)[sourceRow][sourceCol];
+        }
     }
     return result;
 }

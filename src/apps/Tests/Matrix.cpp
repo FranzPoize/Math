@@ -258,7 +258,7 @@ SCENARIO("Naive multiplication")
 {
     GIVEN("A 2x2 Matrix")
     {
-        Matrix<2, 2> left = {
+        Matrix<2, 2> left{
             1., 2.,
             2., 1.
         };
@@ -270,6 +270,71 @@ SCENARIO("Naive multiplication")
             THEN("Mutlipliying them results in the first matrix")
             {
                 REQUIRE( (left*right) == left );
+            }
+        }
+    }
+}
+
+
+SCENARIO("Matrix transposition")
+{
+    GIVEN("A square 2x2 Matrix")
+    {
+        Matrix<2, 2> source{
+            1., 2.,
+            3., 4.
+        };
+
+        WHEN("It is transposed")
+        {
+            auto transposed = source.transpose();
+
+            Matrix<2, 2> expected{
+                1., 3.,
+                2., 4.
+            };
+
+            THEN("The result is a square 2x2 Matrix")
+            {
+                REQUIRE(transposed.Rows == 2);
+                REQUIRE(transposed.Cols == 2);
+            }
+
+            THEN("The result is transposed")
+            {
+                REQUIRE(transposed == expected);
+            }
+        }
+    }
+
+    GIVEN("A 4x3 Matrix")
+    {
+        Matrix<4, 3> source{
+             1.,  2.,  3.,
+             4.,  5.,  6.,
+             7.,  8.,  9.,
+            10., 11., 12.,
+        };
+
+        WHEN("It is transposed")
+        {
+            auto transposed = source.transpose();
+
+            Matrix<3, 4> expected{
+                 1.,  4.,  7., 10.,
+                 2.,  5.,  8., 11.,
+                 3.,  6.,  9., 12.,
+            };
+
+            THEN("The result is a 3x4 Matrix")
+            {
+                REQUIRE(transposed.Rows == 3);
+                REQUIRE(transposed.Cols == 4);
+            }
+
+            THEN("The result is transposed")
+            {
+                REQUIRE(transposed == expected);
             }
         }
     }

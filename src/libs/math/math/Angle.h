@@ -4,6 +4,8 @@
 
 #include <string>
 
+#include <cmath>
+
 
 namespace ad {
 namespace math {
@@ -69,6 +71,42 @@ private:
 // Operations
 //
 #define ANGLE Angle<T_representation, T_unitTag>
+
+template <class T_representation, class T_unitTag>
+T_representation sin(const ANGLE aAngle)
+{
+    return std::sin(Radian<T_representation>{aAngle}.value());
+}
+
+template <class T_representation, class T_unitTag>
+T_representation cos(const ANGLE aAngle)
+{
+    return std::cos(Radian<T_representation>{aAngle}.value());
+}
+
+template <class T_representation, class T_unitTag>
+T_representation tan(const ANGLE aAngle)
+{
+    return std::tan(Radian<T_representation>{aAngle}.value());
+}
+
+template <class T_representation, class T_unitTag>
+T_representation asin(const ANGLE aAngle)
+{
+    return std::asin(Radian<T_representation>{aAngle}.value());
+}
+
+template <class T_representation, class T_unitTag>
+T_representation acos(const ANGLE aAngle)
+{
+    return std::acos(Radian<T_representation>{aAngle}.value());
+}
+
+template <class T_representation, class T_unitTag>
+T_representation atan(const ANGLE aAngle)
+{
+    return std::atan(Radian<T_representation>{aAngle}.value());
+}
 
 template <class T_representation, class T_unitTag>
 constexpr bool operator==(const ANGLE aLhs, const ANGLE aRhs)

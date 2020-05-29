@@ -206,13 +206,6 @@ protected:
     constexpr T_derived * derivedThis() noexcept;
     constexpr const T_derived * derivedThis() const noexcept;
 
-protected:
-    /// \note The default default-ctor would return unitialized memory.
-    /// This is usefull in implementation details, but we make it more explicit with a ctor taking a tag
-    MatrixBase() = delete;
-
-    struct UninitializedTag {};
-
     // Implementer note: defaulted operations seems to deduce constexpr (and hopefully noexcept)
     MatrixBase(const MatrixBase &aRhs) = default;
     MatrixBase & operator=(const MatrixBase &aRhs) = default;
@@ -223,6 +216,19 @@ protected:
     MatrixBase & operator=(MatrixBase && aRhs) = default;
 
 public:
+    /// \note The default default-ctor would return unitialized memory.
+    /// This is usefull in implementation details, but we make it more explicit with a ctor taking a tag
+    MatrixBase() = delete;
+
+    // Implementer note: At first, this was a protected struct of Matrix template
+    // yet, in some situation implementations need an un-initialized matrix of different dimensions
+    // e.g. transpose operation
+    class UninitializedTag
+    {
+        template <class, int, int, class> friend class MatrixBase;
+        UninitializedTag() = default;
+    };
+
     /// \brief Like a default constructor, but inaccessible to the client code thanks to the protected tag.
     constexpr MatrixBase(UninitializedTag) noexcept(should_noexcept);
 

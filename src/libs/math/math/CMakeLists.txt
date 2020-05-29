@@ -11,6 +11,8 @@ set(${PROJECT_NAME}_HEADERS
     MatrixTraits.h
     Range.h
     Rectangle.h
+    Transformations.h
+    Transformations-impl.h
     Utilities.h
     Vector.h
     Vector-impl.h
