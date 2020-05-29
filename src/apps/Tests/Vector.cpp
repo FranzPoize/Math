@@ -76,6 +76,34 @@ SCENARIO("Vectors can be constructed and manipulated")
 }
 
 
+SCENARIO("There is a separate UnitVec type to model unit vectors")
+{
+    REQUIRE_FALSE(std::is_aggregate_v<UnitVec<4>>);
+    // Note: disables aggregate initialization, such as:
+    //UnitVec<4> unit4{vec4};
+
+    REQUIRE_FALSE(std::is_default_constructible_v<UnitVec<4>>);
+
+    REQUIRE_FALSE(std::is_trivially_constructible_v<UnitVec<4>, Vec<4>>);
+    // Note: Constructing a UnitVec from a Vec is not using a trivial (~defaulted) operation
+
+    GIVEN("A vector of dimension 4")
+    {
+        Vec<4> vec4{10., 20., 40., 80.};
+
+        WHEN("A unit vector of matching dimension is explicitly constructed from the vector")
+        {
+            UnitVec<4> unit4{vec4};
+
+            THEN("The unit vector norm is 1")
+            {
+                REQUIRE(unit4.getNorm() == 1.);
+            }
+        }
+    }
+}
+
+
 SCENARIO("There are separate vector template classes")
 {
     WHEN("Using different vector types of matching dimension and value type")

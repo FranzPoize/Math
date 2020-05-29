@@ -4,6 +4,7 @@
 #include <math/Constants.h>
 
 #include <iostream>
+#include <sstream>
 
 using namespace ad::math;
 using namespace ad::math::angle_literals;

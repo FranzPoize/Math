@@ -34,6 +34,7 @@ public:
     /// \brief Vector magnitude
     /*constexpr*/ T_number getNorm() const;
 
+    // Implementer's note: Not constexpr, because getNorm() is not
     /// \brief Compound normalization
     /*constexpr*/ T_derived & normalize();
 };
@@ -91,6 +92,32 @@ public:
     Vec cross(const Vec &aRhs) /*requires(N_dimension==3)*/;
 };
 #undef BASE
+
+
+/// \brief Unit vector class, ensuring an instance of this class has norm 1.
+template <int N_dimension, class T_number=real_number>
+class UnitVec : public Vec<N_dimension, T_number>
+{
+    typedef Vec<N_dimension, T_number> base_type;
+
+    // explicit is a workaround to prevent UnitVec from being an aggregate type
+    // (otherwise, a deleted or defaulted ctor would still allow for aggregate initialization)
+    // see: http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p1008r0.pdf paragraph 1.3
+    explicit UnitVec() = delete;
+
+    struct already_normalized {};
+    UnitVec(base_type aNormalizedVec, already_normalized) : base_type{std::move(aNormalizedVec)}
+    {}
+
+public:
+    explicit constexpr UnitVec(base_type aVec) : base_type{aVec.normalize()}
+    {}
+
+    constexpr UnitVec operator-() const
+    {
+        return {base_type::operator-(), already_normalized{}};
+    }
+};
 
 
 #define BASE Vector<Position<N_dimension, T_number>, N_dimension, T_number>

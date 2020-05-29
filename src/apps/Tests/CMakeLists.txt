@@ -15,6 +15,7 @@ set(${PROJECT_NAME}_SOURCES
     Range.cpp
     Rectangle.cpp
     Traits.cpp
+    Transformations_tests.cpp
     Vector.cpp
     VectorOfAngle.cpp
 )
