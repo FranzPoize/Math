@@ -55,5 +55,10 @@ class from_matrix;
 template <class T>
 inline constexpr bool from_matrix_v = from_matrix<T>::value;
 
+template<class T>
+inline constexpr bool is_arithmetic_v = std::is_arithmetic<T>::value;
+
+
+
 
 }} // namespace ad::math

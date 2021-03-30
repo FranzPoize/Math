@@ -212,7 +212,7 @@ operator-(T_derived aLhs, const MatrixBase<TMA_RIGHT> & aRhs)
 
 template <TMP>
 template <class T_scalar>
-constexpr std::enable_if_t<! from_matrix_v<T_scalar>, T_derived &>
+constexpr std::enable_if_t<is_arithmetic_v<T_scalar>, T_derived &>
 MatrixBase<TMA>::operator*=(T_scalar aScalar) noexcept(should_noexcept)
 {
     for(std::size_t elementId = 0; elementId != N_rows*N_cols; ++elementId)
@@ -222,9 +222,8 @@ MatrixBase<TMA>::operator*=(T_scalar aScalar) noexcept(should_noexcept)
     return *derivedThis();
 }
 
-
 template <TMP, class T_scalar>
-constexpr std::enable_if_t<! from_matrix_v<T_scalar>, T_derived>
+constexpr std::enable_if_t<is_arithmetic_v<T_scalar>, T_derived>
 operator*(T_scalar aScalar, const MatrixBase<TMA> &aRhs)
 {
     T_derived copy(static_cast<const T_derived &>(aRhs));
@@ -234,7 +233,7 @@ operator*(T_scalar aScalar, const MatrixBase<TMA> &aRhs)
 
 
 template <TMP, class T_scalar>
-constexpr std::enable_if_t<! from_matrix_v<T_scalar>, T_derived>
+constexpr std::enable_if_t<is_arithmetic_v<T_scalar>, T_derived>
 operator*(const MatrixBase<TMA> &aLhs, T_scalar aScalar)
 {
     return aScalar * aLhs;
@@ -243,7 +242,7 @@ operator*(const MatrixBase<TMA> &aLhs, T_scalar aScalar)
 
 template <TMP>
 template <class T_scalar>
-constexpr std::enable_if_t<! from_matrix_v<T_scalar>, T_derived &>
+constexpr std::enable_if_t<is_arithmetic_v<T_scalar>, T_derived &>
 MatrixBase<TMA>::operator/=(T_scalar aScalar) noexcept(should_noexcept)
 {
     for(std::size_t elementId = 0; elementId != N_rows*N_cols; ++elementId)
@@ -255,7 +254,7 @@ MatrixBase<TMA>::operator/=(T_scalar aScalar) noexcept(should_noexcept)
 
 
 template <TMP, class T_scalar>
-constexpr std::enable_if_t<! from_matrix_v<T_scalar>, T_derived>
+constexpr std::enable_if_t<is_arithmetic_v<T_scalar>, T_derived>
 operator/(const MatrixBase<TMA> &aLhs, T_scalar aScalar)
 {
     T_derived copy(static_cast<const T_derived &>(aLhs));
